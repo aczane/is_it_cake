@@ -70,6 +70,12 @@ In this case, you're going by image - is this image a cake, or not? If we broke 
 
 So we've classified this element - it's 1. NOT CAKE.
 
+Your result will depend greatly on your training set; you can see, for example, if you had used a training set like this, instead:
+
+![](/img/cake_imb_20180208.png)
+
+This is a gross example of an imbalanced set - it won't be very good at distinguishing between classes 1 and 2, because it doesn't have sufficient examples of 1. There are [methods](https://machinelearningmastery.com/tactics-to-combat-imbalanced-classes-in-your-machine-learning-dataset/) to address imbalanced sets.
+
 And finally, if we wanted to drill down in the data, we could also just take the CAKE group, and say now that we would like to sort new cake data into WHOLE CAKES and CAKE SLICES, based on our breaking down the CAKE cluster and labeling each element as either a WHOLE CAKE, or a CAKE SLICE. That would create a new training set, and we can get further specificity.
 
 ## Need conclusion here
