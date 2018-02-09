@@ -59,7 +59,7 @@ Right, so now you probably have questions.
 
 ### Supervised learning
 
-Now you have your clusters, or your _classes_. This is usually why, if you don't have labeled data, you start with unsupervised learning and then move to supervised - the latter requires a training set (the output of your clustering), or something to train your algorithm on. We're tackling classification here - specifically _binary_ classification, since we have two classes. 
+Now you have your clusters, or your _classes_. This is usually why, if you don't have labeled data, you start with unsupervised learning and then move to supervised - the latter requires a training set for your algorithm (which can be the output of your clustering, as in this case). We're tackling classification here - specifically _binary_ classification, since we have two classes. 
 
 Based on our classes above (1. NOT CAKE, 2. CAKE), if I hand you a new set of raw data, can you sort them based on the criteria: IS IT CAKE?
 
