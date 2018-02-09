@@ -65,7 +65,7 @@ Based on our classes above (1. NOT CAKE, 2. CAKE), if I hand you a new set of ra
 
 ![](/img/cake_class_20180206.png)
 
-In this case, you're going by image - is this image a cake, or not? If we broke that down, we'd be talking about some organization of pixels that make up this cake emoji. If you had actual food as your data, you'd be thinking: is this sweet? Is it fluffy? Does it have frosting? Likewise, if you were only given descriptors (text data): "moist" (sorry), "frosted," "chocolate," that might help you sort that line of description into the "cake" pile, vs. descriptors like "spicy", "crispy," "salty" - that would (hopefully) be "not cake."
+In this case, you're going by image - is this image a cake, or not? If we broke that down, we'd be talking about some organization of pixels that make up this cake emoji. If you had actual food as your data, you'd be thinking: is this sweet? Is it fluffy? Does it have frosting? Likewise, if you were only given descriptors (text data): "moist" (sorry), "frosted," "chocolate," might help you sort that line of description into the "cake" pile, vs. descriptors like "spicy", "crispy," "salty" - that would (hopefully) be "not cake."
 
 So we've classified this element - it's 1. NOT CAKE.
 
