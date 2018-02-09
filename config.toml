@@ -6,7 +6,7 @@ theme = "hugo-lithium-theme"
 googleAnalytics = ""
 disqusShortname = "is-it-cake"
 ignoreFiles = ["\\.Rmd$", "\\.Rmarkdown$", "_files$", "_cache$"]
-enableEmoji = TRUE
+
 
 [permalinks]
     post = "/:year/:month/:day/:slug/"
