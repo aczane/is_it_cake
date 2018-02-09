@@ -92,4 +92,5 @@ The algorithms you choose will depend on the type of data you have, the computin
 
 # Further reading
 [Machine Learning for Humans](https://medium.com/machine-learning-for-humans)
+\
 [The most recent tasty cake I've made](http://www.dramaticpancake.com/coconut-pound-cake/)
