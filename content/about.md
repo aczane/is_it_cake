@@ -21,8 +21,11 @@ Outside of work, I like to climb and hang upside down (from silks, lyras, other 
 Currently:
 
 listening to: Childish Gambino, Anderson East
+\
 eating: tacos
+\
 reading: Sheryl Sandberg, _Lean In_
+\
 watching: The Good Place
 
 
