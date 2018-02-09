@@ -4,7 +4,7 @@ title = "Is It Cake?"
 copyright = "&copy; 2018 Ariel Zane"
 theme = "hugo-lithium-theme"
 googleAnalytics = ""
-disqusShortname = "is-it-cake"
+disqusShortname = is-it-cake
 ignoreFiles = ["\\.Rmd$", "\\.Rmarkdown$", "_files$", "_cache$"]
 
 
