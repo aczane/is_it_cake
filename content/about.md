@@ -4,7 +4,7 @@ author: Ariel Zane
 date: '2018-02-06'
 ---
 
-I'm an analyst living in the great DC metro area of the United States. 
+I'm an analyst living in the greater DC metro area of the United States. 
 
 I earned my Ph.D. in physical chemistry from the University of Washington, doing solid-state NMR, because solving NMR spectra and peptide structure is kind of like solving puzzles, and I like puzzles.
 
