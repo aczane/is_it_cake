@@ -5,7 +5,7 @@ copyright = "&copy; 2018 Ariel Zane"
 theme = "hugo-lithium-theme"
 googleAnalytics = ""
 ignoreFiles = ["\\.Rmd$", "\\.Rmarkdown$", "_files$", "_cache$"]
-
+excerpt: "A data science blog"
 
 [permalinks]
     post = "/:year/:month/:day/:slug/"
@@ -39,8 +39,7 @@ ignoreFiles = ["\\.Rmd$", "\\.Rmarkdown$", "_files$", "_cache$"]
     MathJaxVersion = "2.7.1"
 
     [params.logo]
-    img = "/logo/portrait.png"
-    url = "/"
+    img = "/img/portrait.png"
     width = 50
     height = 50
     alt = "Ariel Zane"
