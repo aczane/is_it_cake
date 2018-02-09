@@ -10,7 +10,7 @@ I earned my Ph.D. in physical chemistry from the University of Washington, doing
 
 Then I moved to do a post-doc in epidemiology and clinical MRI, because NMR is also pretty much the same as MRI, except...on people. This is where I had to learn R, and I decided that I like this kind of puzzle (figuring out how to script answers to questions), too. And, voila.
 
-These days, my work leans heavily toward text analysis, machine learning techniques, and bibliometrics - particularly scientometrics; this includes fun, visual things like social network analysis and topic mapping.
+These days, my work leans heavily toward text analysis, machine learning techniques, and bibliometrics - particularly scientometrics; this includes fun, visual things like social network analysis and topic mapping. But also, [counts.](https://twitter.com/drob/status/959952851244953600)
 
 Outside of work, I like to climb and hang upside down (from silks, lyras, other aerial apparatus). I also bake, herd and am herded by our two dogs, and knit.
 
