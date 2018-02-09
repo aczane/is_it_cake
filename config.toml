@@ -43,5 +43,5 @@ ignoreFiles = ["\\.Rmd$", "\\.Rmarkdown$", "_files$", "_cache$"]
     url = "/"
     width = 50
     height = 50
-    tag = ""
+    alt = "Ariel Zane"
 
