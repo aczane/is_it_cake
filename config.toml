@@ -5,7 +5,7 @@ copyright = "&copy; 2018 Ariel Zane"
 theme = "hugo-lithium-theme"
 googleAnalytics = ""
 ignoreFiles = ["\\.Rmd$", "\\.Rmarkdown$", "_files$", "_cache$"]
-excerpt: "Is It Cake? A data science blog"
+excerpt= "Is It Cake? A data science blog"
 
 [permalinks]
     post = "/:year/:month/:day/:slug/"
