@@ -39,8 +39,8 @@ excerpt= "Is It Cake? A data science blog"
     MathJaxVersion = "2.7.1"
 
     [params.logo]
-    img = "/img/portrait.png"
+    url = "logo.png"
     width = 50
     height = 50
-    alt = "Ariel Zane"
+    alt = "logo"
 
