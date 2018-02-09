@@ -12,7 +12,7 @@ Then I moved to do a post-doc in epidemiology and clinical MRI, because NMR is a
 
 Outside of work, I like to climb and hang upside down (from silks, lyras, other aerial apparatus). I also bake, herd and am herded by our two dogs, and knit.
 
-![](/img/dogs.JPG)
+![](/img/dogs.png)
 \
 \
 Currently:
