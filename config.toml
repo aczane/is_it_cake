@@ -4,7 +4,6 @@ title = "Is It Cake?"
 copyright = "&copy; 2018 Ariel Zane"
 theme = "hugo-lithium-theme"
 googleAnalytics = ""
-disqusShortname = "is-it-cake"
 ignoreFiles = ["\\.Rmd$", "\\.Rmarkdown$", "_files$", "_cache$"]
 
 
@@ -24,6 +23,7 @@ ignoreFiles = ["\\.Rmd$", "\\.Rmarkdown$", "_files$", "_cache$"]
 [params]
     description = "A data science blog"
     name = "Ariel Zane"
+    disqusShortname = "is-it-cake"
 
     # options for highlight.js (version, additional languages, and theme)
     highlightjsVersion = "9.11.0"
