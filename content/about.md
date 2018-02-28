@@ -20,13 +20,13 @@ Outside of work, I like to climb and hang upside down (from silks, lyras, other 
 \
 Currently:
 
-listening to: Childish Gambino, Anderson East
+listening to: Black Panther The Album
 \
-eating: tacos
+eating: :donut:
 \
-reading: Sheryl Sandberg, _Lean In_
+(re)reading: _The Scarlet Pimpernel_
 \
-watching: The Good Place
+watching: Ugly and Delicious
 
 
 (If I ever learn how to archive things, this will be periodically updated and archived, because data.)\
