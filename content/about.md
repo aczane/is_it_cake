@@ -22,7 +22,7 @@ Currently:
 
 listening to: Black Panther The Album
 \
-eating: :donut:
+eating: :doughnut:
 \
 (re)reading: _The Scarlet Pimpernel_
 \
