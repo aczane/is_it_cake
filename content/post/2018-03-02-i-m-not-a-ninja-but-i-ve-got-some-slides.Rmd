@@ -20,7 +20,7 @@ draft: True
 
 ```{r setup, include=FALSE}
 options(htmltools.dir.version = FALSE)
-knitr::opts_chunk$set(tidy = FALSE, echo = FALSE)
+knitr::opts_chunk$set(tidy = FALSE, eval = FALSE)
 ```
 
 A [recent blog post from Edwin Thoen]("https://edwinth.github.io/blog-new-things/"), suggesting that we blog about things we just learned, prompted me to write this post, because I think that there is some benefit to seeing how other people learn, and to following examples created by others who are not ninja-level experts. 
@@ -31,12 +31,103 @@ The documentation is all there, and theoretically you should read it all, but I 
 
 1. Download [xaringan]("https://github.com/yihui/xaringan"). I work in RStudio, so my instructions and example will be specific to this method. You can install it with:
 
-```{r, eval = FALSE, include = TRUE}
+```{r}
 devtools::install_github('yihui/xaringan')
 ```
 
 2. To create a new presentation:<br/>
 File > New File > R Markdown > From Template > Ninja Presentation
 
-3. This generates a .Rmd file 
+3. This generates a new .Rmd file - it is the .Rmd that creates [Yihui's slide deck]("https://slides.yihui.name/xaringan/"). So, if you have the .Rmd open and the slide deck open (or just use the **Infinite Moon Reader** Add-in and render it in RStudio viewer/html), you can see what code pieces correspond to slide output elements. 
 
+4. In the YAML, you would start with the default:
+```{r}
+---
+title: "Presentation Ninja"
+subtitle: "⚔<br/>with xaringan"
+author: "Yihui Xie"
+date: "2016/12/12"
+output:
+  xaringan::moon_reader:
+    lib_dir: libs
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+---
+```
+
+I edited it this way:
+```{r}
+---
+title: "Title Goes Here"
+author: "Ariel C. Zane<br/>More Lines Here"
+date: "March 2, 2018"
+output:
+  xaringan::moon_reader:
+    # to change color schemes, add this line below
+    # to incorporate customized css
+    {{css: ["default", "new-color.css", "default-fonts.css"]}}
+    lib_dir: libs
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+---
+```
+
+Here's the difference:
+
+![](/img/comparison_title.png)
+
+
+My understanding is that the default CSS doesn't explicitly need to be called unless you want to modify it - Yihui gives the explanation [here]("https://github.com/yihui/xaringan/wiki"). The "default" .css file appears once you render the .Rmd, along with the default-fonts.css file (some other files also appear: the libs folder and everything in it, and .html output of your .Rmd). 
+
+They take effect in this order:<br/> 
+default < new-color.css < default-fonts.css
+
+If you want to overwrite only chunks of it (here, I changed colors in new-color.css, and fonts in default-fonts.css), be mindful of the order. You could also presumably edit the default.css.
+
+I used [http://www.color-hex.com]("http://www.color-hex.com") to find colors. For my work presentation, I just used basic black and white colors, but here I changed them so that the difference was more marked.[^1]
+
+Contents of **new-color.css**:
+```{css}
+/*
+h1, h2, h3 - font colors for the different headers; removed text shadow
+*/
+
+h1, h2, h3 {
+  font-weight: normal;
+  color: #eb6d13;
+  text-shadow: none;
+}
+
+/*
+for any links
+*/
+
+a, a > code {
+  color: #eb6d13;
+}
+
+/*
+highlight color for inline code; 
+the rgba takes red, green, blue, alpha arguments
+*/
+.remark-code-line-highlighted { background-color: rgba(19, 108, 235 0.3); }
+
+/* background color and headers, code, etc., colors for .inverse class slides (e.g., title)
+*/
+
+.inverse {
+  background-color: #FFFFFF;
+}
+.inverse, .inverse h1, .inverse h2, .inverse h3, .inverse a, inverse a > code {
+  color: #E7165F;
+}
+
+```
+
+
+
+[^1]: I will add that when I tried to edit .css files in RStudio, after using Infinite Moon Reader to live preview the slides, any extra .css files I created (e.g., new-color.css, default-fonts.css)] DISAPPEARED. I don't understand the work behind the scenes and this black magic...so I just used my favorite .css editor, [Atom]("https://atom.io").
