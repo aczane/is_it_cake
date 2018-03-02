@@ -24,7 +24,90 @@ draft: True
 <p>I spent yesterday putting together some slides at work, using the <a href="%22https://github.com/yihui/xaringan%22">xaringan</a> package. I largely followed the examples in <a href="%22https://slides.yihui.name/xaringan/%22">Yihui’s slide deck</a>, the <a href="%22https://github.com/gnab/remark/wiki%22">wiki</a>, and <a href="%22https://alison.rbind.io/post/r-ladies-slides/s%22">Alison’s slide deck and code</a>. I have <em>very</em> limited experience in CSS - I’ve made a flask app in Python for a project, but in general CSS makes me want to throw things and eat my computer, so…that’s where I started from. But at the end of the day, I had a basic slide set with R-generated tables, so I thought maybe I could reproduce that here, for anyone who wants to hit the ground running with very limited prior knowledge.</p>
 <p>The documentation is all there, and theoretically you should read it all, but I tend to learn best by doing; I’ll run through the basics so that I understand where to start, but I find it the most helpful to see the .Rmd and the final output, and learn that way.</p>
 <ol style="list-style-type: decimal">
-<li><p>Download <a href="%22https://github.com/yihui/xaringan%22">xaringan</a>. I work in RStudio, so my instructions and example will be specific to this method. You can install it with:</p></li>
-<li><p>To create a new presentation:<br/> File &gt; New File &gt; R Markdown &gt; From Template &gt; Ninja Presentation</p></li>
-<li><p>This generates a .Rmd file</p></li>
+<li>Download <a href="%22https://github.com/yihui/xaringan%22">xaringan</a>. I work in RStudio, so my instructions and example will be specific to this method. You can install it with:</li>
 </ol>
+<pre class="r"><code>devtools::install_github(&#39;yihui/xaringan&#39;)</code></pre>
+<ol start="2" style="list-style-type: decimal">
+<li><p>To create a new presentation:<br/> File &gt; New File &gt; R Markdown &gt; From Template &gt; Ninja Presentation</p></li>
+<li><p>This generates a new .Rmd file - it is the .Rmd that creates <a href="%22https://slides.yihui.name/xaringan/%22">Yihui’s slide deck</a>. So, if you have the .Rmd open and the slide deck open (or just use the <strong>Infinite Moon Reader</strong> Add-in and render it in RStudio viewer/html), you can see what code pieces correspond to slide output elements.</p></li>
+<li><p>In the YAML, you would start with the default:</p></li>
+</ol>
+<pre class="r"><code>---
+title: &quot;Presentation Ninja&quot;
+subtitle: &quot;⚔&lt;br/&gt;with xaringan&quot;
+author: &quot;Yihui Xie&quot;
+date: &quot;2016/12/12&quot;
+output:
+  xaringan::moon_reader:
+    lib_dir: libs
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+---</code></pre>
+<p>I edited it this way:</p>
+<pre class="r"><code>---
+title: &quot;Title Goes Here&quot;
+author: &quot;Ariel C. Zane&lt;br/&gt;More Lines Here&quot;
+date: &quot;March 2, 2018&quot;
+output:
+  xaringan::moon_reader:
+    # to change color schemes, add this line below
+    # to incorporate customized css
+    {{css: [&quot;default&quot;, &quot;new-color.css&quot;, &quot;default-fonts.css&quot;]}}
+    lib_dir: libs
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+---</code></pre>
+<p>Here’s the difference:</p>
+<div class="figure">
+<img src="/img/comparison_title.png" />
+
+</div>
+<p>My understanding is that the default CSS doesn’t explicitly need to be called unless you want to modify it - Yihui gives the explanation <a href="%22https://github.com/yihui/xaringan/wiki%22">here</a>. The “default” .css file appears once you render the .Rmd, along with the default-fonts.css file (some other files also appear: the libs folder and everything in it, and .html output of your .Rmd).</p>
+<p>They take effect in this order:<br/> default &lt; new-color.css &lt; default-fonts.css</p>
+<p>If you want to overwrite only chunks of it (here, I changed colors in new-color.css, and fonts in default-fonts.css), be mindful of the order. You could also presumably edit the default.css.</p>
+<p>I used <a href="%22http://www.color-hex.com%22">http://www.color-hex.com</a> to find colors. For my work presentation, I just used basic black and white colors, but here I changed them so that the difference was more marked.<a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a></p>
+<p>Contents of <strong>new-color.css</strong>:</p>
+<pre class="css"><code>/*
+h1, h2, h3 - font colors for the different headers; removed text shadow
+*/
+
+h1, h2, h3 {
+  font-weight: normal;
+  color: #eb6d13;
+  text-shadow: none;
+}
+
+/*
+for any links
+*/
+
+a, a &gt; code {
+  color: #eb6d13;
+}
+
+/*
+highlight color for inline code; 
+the rgba takes red, green, blue, alpha arguments
+*/
+.remark-code-line-highlighted { background-color: rgba(19, 108, 235 0.3); }
+
+/* background color and headers, code, etc., colors for .inverse class slides (e.g., title)
+*/
+
+.inverse {
+  background-color: #FFFFFF;
+}
+.inverse, .inverse h1, .inverse h2, .inverse h3, .inverse a, inverse a &gt; code {
+  color: #E7165F;
+}
+</code></pre>
+<div class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p>I will add that when I tried to edit .css files in RStudio, after using Infinite Moon Reader to live preview the slides, any extra .css files I created (e.g., new-color.css, default-fonts.css)] DISAPPEARED. I don’t understand the work behind the scenes and this black magic…so I just used my favorite .css editor, <a href="%22https://atom.io%22">Atom</a>.<a href="#fnref1">↩</a></p></li>
+</ol>
+</div>
