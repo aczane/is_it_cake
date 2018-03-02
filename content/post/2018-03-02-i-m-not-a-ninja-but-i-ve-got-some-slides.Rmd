@@ -29,7 +29,7 @@ I spent yesterday putting together some slides at work, using the [xaringan]("ht
 
 I have *very* limited experience in CSS - I've made a flask app in Python for a project, but in general CSS makes me want to throw things and eat my computer, so...that's where I started from. But at the end of the day, I had a basic slide set with R-generated tables, so I thought maybe I could reproduce that here, for anyone who wants to hit the ground running with very limited prior knowledge.
 
-The documentation is all there, and theoretically you should read it all, but I tend to learn best by doing; I'll run through the basics so that I understand where to start, but I find it the most helpful to see the .Rmd and the final output, and learn that way.
+The documentation is all there, and theoretically you should read it all, but I tend to learn best by doing; I'll run through the basics so that I understand where to start, but I find it the most helpful to see the .Rmd and the final output, and learn that way. Then it's handy to have the resources afterward so that I can troubleshoot.
 
 ## Let's Get Started
 
@@ -134,7 +134,7 @@ the rgba takes red, green, blue, alpha arguments
 
 5. To edit and create your slides, you'll first want to set your code preferences. 
 
-I didn't set eval = FALSE up here in the overall options because I wanted to run tables that would be included in my code. For later chunks that I didn't want to be evaluated, I just added eval = FALSE where necessary.
+I didn't set eval = FALSE up here in the overall options because I wanted to run tables that would be included in my code. For later chunks that I didn't want to be evaluated, I just added eval = FALSE where necessary.[^2]
 
 ![](/img/chunk_options.png)
 
@@ -167,10 +167,8 @@ And this is what you would get, ultimately (although each bullet would appear wi
 
 ![](/img/first_slide.png)
 
-If you want to suppress the message of an evaluated chunk:
-```{r, message = FALSE}
-library(tidyverse)
-```
+If you want to suppress the message of an evaluated chunk, add message = FALSE:
+![](/img/message_false.png)
 
 If you want to display tables, use format = 'html' in `knitr::kable`. I also used the [kableExtra]("https://cran.r-project.org/web/packages/kableExtra/vignettes/awesome_table_in_html.html") package to add a little more customization.
 
@@ -185,10 +183,11 @@ knitr::kable(head(), format = 'html') %>%
 
 So the slide .Rmd would look like:
   
-  ![](/img/slide_rmd.png)
+![](/img/slide_rmd.png)
 
 If you wanted to center it, add this to the top:
-  ```{r}
+
+```{r}
 ---
   class: center
 ```
@@ -204,3 +203,5 @@ knitr::include_url('http://aczane.netlify.com/slides/xaringan_example_acz.html')
 ```
                                                            
 [^1]: I will add that when I tried to edit .css files in RStudio, after using Infinite Moon Reader to live preview the slides, any extra .css files I created (e.g., new-color.css, default-fonts.css)] DISAPPEARED. I don't understand the work behind the scenes and this black magic...so I just used my favorite .css editor, [Atom]("https://atom.io").
+
+[^2]: I can't for the life of me figure out how to put chunks in chunks...this is getting a little too meta, guys.
