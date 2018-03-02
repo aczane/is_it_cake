@@ -27,9 +27,9 @@ A [recent blog post from Edwin Thoen]("https://edwinth.github.io/blog-new-things
 
 I spent yesterday putting together some slides at work, using the [xaringan]("https://github.com/yihui/xaringan") package. I largely followed the examples in [Yihui's slide deck]("https://slides.yihui.name/xaringan/"), the [wiki]("https://github.com/gnab/remark/wiki"), and [Alison's slide deck and code]("https://alison.rbind.io/post/r-ladies-slides/s"). These were **wonderful**. 
 
-I have *very* limited experience in CSS - I've made a flask app in Python for a project, but in general CSS makes me want to throw things and eat my computer, so...that's where I started from. But at the end of the day, I had a basic slide set with R-generated tables, so I thought maybe I could reproduce that here, for anyone who wants to hit the ground running with very limited prior knowledge.
+I have *very* limited experience in CSS - I've made a flask app in Python for a project, but in general CSS makes me want to throw things and eat my computer, so...that's where I started from. But at the end of the day, I had a basic slide set with R-generated tables, so I thought maybe I could reproduce that here, for anyone who wants to hit the ground running with very limited prior knowledge of xaringan.
 
-The documentation is all there, and theoretically you should read it all, but I tend to learn best by doing; I'll run through the basics so that I understand where to start, but I find it the most helpful to see the .Rmd and the final output, and learn that way. Then it's handy to have the resources afterward so that I can troubleshoot.
+The documentation is all there, and theoretically you should read it all, but I tend to learn best by doing; I'll run through the basics so that I understand where to start, but I find it the most helpful to dive into the .Rmd and the final output, and learn that way. Then it's handy to have the resources afterward so that I can troubleshoot.
 
 ## Let's Get Started
 
@@ -132,9 +132,9 @@ the rgba takes red, green, blue, alpha arguments
 
 ```
 
-5. To edit and create your slides, you'll first want to set your code preferences. 
+5. From here, it's mostly like working with an R Markdown file. To edit and create your slides, you'll first want to set your code preferences. 
 
-I didn't set eval = FALSE up here in the overall options because I wanted to run tables that would be included in my code. For later chunks that I didn't want to be evaluated, I just added eval = FALSE where necessary.[^2]
+I didn't set `eval = FALSE` up here in the overall options because I wanted to run tables that would be included in my code. For later chunks that I didn't want to be evaluated, I just added `eval = FALSE` where necessary.[^2]
 
 ![](/img/chunk_options.png)
 
@@ -167,7 +167,7 @@ And this is what you would get, ultimately (although each bullet would appear wi
 
 ![](/img/first_slide.png)
 
-If you want to suppress the message of an evaluated chunk, add message = FALSE:
+If you want to suppress the message of an evaluated chunk, add `message = FALSE`:
 ![](/img/message_false.png)
 
 If you want to display tables, use format = 'html' in `knitr::kable`. I also used the [kableExtra]("https://cran.r-project.org/web/packages/kableExtra/vignettes/awesome_table_in_html.html") package to add a little more customization.
@@ -196,7 +196,9 @@ If you wanted to center it, add this to the top:
 
 And if you want to use the formatting for the title slide (here it doesn't matter, because all of my backgrounds are white), you would add class: inverse.
 
-Scroll through the deck:
+That's it! My goal was to help convince you that you could go from 0 to slide deck in a very short amount of time; hopefully this helped. I shared the .html outputs with team members via email; they opened it with a browser and everything worked perfectly. I wasn't able to save it to pdf from a browser very well, though - it created 8x11 formatted files and didn't preserve the 4:3 ratio. I looked at some of the [documentation]("https://github.com/yihui/xaringan/wiki/Export-Slides-to-PDF") about that, but it was the end of the day and I didn't get very far. If anyone has tips, let me know!
+
+Scroll through the example deck here:
 (source code [here]("https://github.com/aczane/example_slides"))
 ```{r, eval = TRUE, echo = FALSE}
 knitr::include_url('http://aczane.netlify.com/slides/xaringan_example_acz.html')
