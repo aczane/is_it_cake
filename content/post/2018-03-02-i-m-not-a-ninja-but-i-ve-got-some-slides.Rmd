@@ -25,9 +25,13 @@ knitr::opts_chunk$set(tidy = FALSE, eval = FALSE)
 
 A [recent blog post from Edwin Thoen]("https://edwinth.github.io/blog-new-things/"), suggesting that we blog about things we just learned, prompted me to write this post, because I think that there is some benefit to seeing how other people learn, and to following examples created by others who are not ninja-level experts. 
 
-I spent yesterday putting together some slides at work, using the [xaringan]("https://github.com/yihui/xaringan") package. I largely followed the examples in [Yihui's slide deck]("https://slides.yihui.name/xaringan/"), the [wiki]("https://github.com/gnab/remark/wiki"), and [Alison's slide deck and code]("https://alison.rbind.io/post/r-ladies-slides/s"). I have *very* limited experience in CSS - I've made a flask app in Python for a project, but in general CSS makes me want to throw things and eat my computer, so...that's where I started from. But at the end of the day, I had a basic slide set with R-generated tables, so I thought maybe I could reproduce that here, for anyone who wants to hit the ground running with very limited prior knowledge.
+I spent yesterday putting together some slides at work, using the [xaringan]("https://github.com/yihui/xaringan") package. I largely followed the examples in [Yihui's slide deck]("https://slides.yihui.name/xaringan/"), the [wiki]("https://github.com/gnab/remark/wiki"), and [Alison's slide deck and code]("https://alison.rbind.io/post/r-ladies-slides/s"). These were **wonderful**. 
+
+I have *very* limited experience in CSS - I've made a flask app in Python for a project, but in general CSS makes me want to throw things and eat my computer, so...that's where I started from. But at the end of the day, I had a basic slide set with R-generated tables, so I thought maybe I could reproduce that here, for anyone who wants to hit the ground running with very limited prior knowledge.
 
 The documentation is all there, and theoretically you should read it all, but I tend to learn best by doing; I'll run through the basics so that I understand where to start, but I find it the most helpful to see the .Rmd and the final output, and learn that way.
+
+## Let's Get Started
 
 1. Download [xaringan]("https://github.com/yihui/xaringan"). I work in RStudio, so my instructions and example will be specific to this method. You can install it with:
 
@@ -171,7 +175,7 @@ If you want to suppress the message of an evaluated chunk:
 library(tidyverse)
 ```
 
-If you want to display tables, use format = 'html'. I also used the kableExtra package to add a little more customization.
+If you want to display tables, use format = 'html' in `knitr::kable`. I also used the [kableExtra]("https://cran.r-project.org/web/packages/kableExtra/vignettes/awesome_table_in_html.html") package to add a little more customization.
 
 ```{r}
 test_set <-
@@ -195,6 +199,12 @@ class: center
 ![](/img/center_comp.png)
 
 And if you want to use the formatting for the title slide (here it doesn't matter, because all of my backgrounds are white), you would add class: inverse.
+
+Okay, that sums it up! Scroll through the mini example slide deck:
+```{r}
+knitr::include_url('http://aczane.netlify.com/slides/xaringan_example_acz.html')
+```
+
 
 
 [^1]: I will add that when I tried to edit .css files in RStudio, after using Infinite Moon Reader to live preview the slides, any extra .css files I created (e.g., new-color.css, default-fonts.css)] DISAPPEARED. I don't understand the work behind the scenes and this black magic...so I just used my favorite .css editor, [Atom]("https://atom.io").
