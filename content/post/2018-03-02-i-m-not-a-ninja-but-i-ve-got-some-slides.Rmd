@@ -38,7 +38,7 @@ devtools::install_github('yihui/xaringan')
 2. To create a new presentation:<br/>
 File > New File > R Markdown > From Template > Ninja Presentation
 
-3. This generates a new .Rmd file - it is the .Rmd that creates [Yihui's slide deck]("https://slides.yihui.name/xaringan/"). So, if you have the .Rmd open and the slide deck open (or just use the **Infinite Moon Reader** Add-in and render it in RStudio viewer/html), you can see what code pieces correspond to slide output elements. 
+3. This generates a new .Rmd file - it is the .Rmd that creates [Yihui's slide deck]("https://slides.yihui.name/xaringan/"). So, if you have the .Rmd open and the slide deck open (or just use the **Infinite Moon Reader** Add-in and render it in RStudio viewer/html), you can see what code pieces correspond to slide output elements.
 
 4. In the YAML, you would start with the default:
 ```{r}
@@ -80,7 +80,6 @@ output:
 Here's the difference:
 
 ![](/img/comparison_title.png)
-
 
 My understanding is that the default CSS doesn't explicitly need to be called unless you want to modify it - Yihui gives the explanation [here]("https://github.com/yihui/xaringan/wiki"). The "default" .css file appears once you render the .Rmd, along with the default-fonts.css file (some other files also appear: the libs folder and everything in it, and .html output of your .Rmd). 
 
@@ -131,20 +130,15 @@ the rgba takes red, green, blue, alpha arguments
 
 5. To edit and create your slides, you'll first want to set your code preferences. 
 
-I didn't set eval = FALSE because I wanted to run tables that would be included in my code.
+I didn't set eval = FALSE up here in the overall options because I wanted to run tables that would be included in my code. For later chunks that I didn't want to be evaluated, I just added eval = FALSE where necessary.
 
 ```{r setup, include=FALSE}
 options(htmltools.dir.version = FALSE)
 knitr::opts_chunk$set(tidy = FALSE, echo = FALSE)
 ```
 
-Then you can start with your first (non-title) slide.
+Then you can start with your first (non-title) slide. The syntax is all Pandoc markdown, which you can use the handy [R Markdown cheat sheet for]("https://www.rstudio.com/wp-content/uploads/2016/03/rmarkdown-cheatsheet-2.0.pdf"):
 ```{r}
-
-```
-
-# The --- denotes a new slide here
-# The "#" will be the header for that slide
 ---
 # This is the first slide!
 
@@ -167,10 +161,40 @@ Then you can start with your first (non-title) slide.
 
 ```
 
+And this is what you would get, ultimately (although each bullet would appear with successive advances):
 
+![](/img/first_slide.png)
 
+If you want to suppress the message of an evaluated chunk:
+--
+```{r, message = FALSE}
+library(tidyverse)
+```
 
+If you want to display tables, use format = 'html'. I also used the kableExtra package to add a little more customization.
 
+```{r}
+test_set <-
+  mtcars %>%
+  select(mpg, cyl, disp, hp, drat, wt)
+
+knitr::kable(head(), format = 'html') %>%
+kable_styling(full_width = F, font_size = 8)
+```
+
+So the slide .Rmd would look like:
+
+![](/img/slide_rmd.png)
+
+If you wanted to center it, add this to the top:
+```{r}
+---
+class: center
+```
+
+![](/img/center_comp.png)
+
+And if you want to use the formatting for the title slide (here it doesn't matter, because all of my backgrounds are white), you would add class: inverse.
 
 
 [^1]: I will add that when I tried to edit .css files in RStudio, after using Infinite Moon Reader to live preview the slides, any extra .css files I created (e.g., new-color.css, default-fonts.css)] DISAPPEARED. I don't understand the work behind the scenes and this black magic...so I just used my favorite .css editor, [Atom]("https://atom.io").
