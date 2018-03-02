@@ -22,9 +22,9 @@ options(htmltools.dir.version = FALSE)
 knitr::opts_chunk$set(tidy = FALSE, eval = FALSE)
 ```
 
-A [recent blog post from Edwin Thoen]("https://edwinth.github.io/blog-new-things/"), suggesting that we blog about things we just learned, prompted me to write this post, because I think that there is some benefit to seeing how other people learn, and to following examples created by others who are not ninja-level experts. 
+A [recent blog post from Edwin Thoen](https://edwinth.github.io/blog-new-things/), suggesting that we blog about things we just learned, prompted me to write this post, because I think that there is some benefit to seeing how other people learn, and to following examples created by others who are not ninja-level experts. 
 
-I spent yesterday putting together some slides at work, using the [xaringan]("https://github.com/yihui/xaringan") package. I largely followed the examples in [Yihui's slide deck]("https://slides.yihui.name/xaringan/"), the [wiki]("https://github.com/gnab/remark/wiki"), and [Alison's slide deck and code]("https://alison.rbind.io/post/r-ladies-slides/s"). These were **wonderful**. 
+I spent yesterday putting together some slides at work, using the [xaringan](https://github.com/yihui/xaringan) package. I largely followed the examples in [Yihui's slide deck](https://slides.yihui.name/xaringan/), the [wiki](https://github.com/gnab/remark/wiki), and [Alison's slide deck and code](https://alison.rbind.io/post/r-ladies-slides/s). These were **wonderful**. 
 
 I have *very* limited experience in CSS - I've made a flask app in Python for a project, but in general CSS makes me want to throw things and eat my computer, so...that's where I started from. But at the end of the day, I had a basic slide set with R-generated tables, so I thought maybe I could reproduce that here, for anyone who wants to hit the ground running with very limited prior knowledge of xaringan.
 
@@ -32,7 +32,7 @@ The documentation is all there, and theoretically you should read it all, but I 
 
 ## Let's Get Started
 
-1. Download [xaringan]("https://github.com/yihui/xaringan"). I work in RStudio, so my instructions and example will be specific to this method. You can install it with:
+1. Download [xaringan](https://github.com/yihui/xaringan). I work in RStudio, so my instructions and example will be specific to this method. You can install it with:
 
 ```{r}
 devtools::install_github('yihui/xaringan')
@@ -41,7 +41,7 @@ devtools::install_github('yihui/xaringan')
 2. To create a new presentation:<br/>
 File > New File > R Markdown > From Template > Ninja Presentation
 
-3. This generates a new .Rmd file - it is the .Rmd that creates [Yihui's slide deck]("https://slides.yihui.name/xaringan/"). So, if you have the .Rmd open and the slide deck open (or just use the **Infinite Moon Reader** Add-in and render it in RStudio viewer/html), you can see what code pieces correspond to slide output elements.
+3. This generates a new .Rmd file - it is the .Rmd that creates [Yihui's slide deck](https://slides.yihui.name/xaringan/). So, if you have the .Rmd open and the slide deck open (or just use the **Infinite Moon Reader** Add-in and render it in RStudio viewer/html), you can see what code pieces correspond to slide output elements.
 
 4. In the YAML, you would start with the default:
 ```{r}
@@ -84,14 +84,14 @@ Here's the difference:
 
 ![](/img/comparison_title.png)
 
-My understanding is that the default CSS doesn't explicitly need to be called unless you want to modify it - Yihui gives the explanation [here]("https://github.com/yihui/xaringan/wiki"). The "default" .css file appears once you render the .Rmd, along with the default-fonts.css file (some other files also appear: the libs folder and everything in it, and .html output of your .Rmd). 
+My understanding is that the default CSS doesn't explicitly need to be called unless you want to modify it - Yihui gives the explanation [here](https://github.com/yihui/xaringan/wiki). The "default" .css file appears once you render the .Rmd, along with the default-fonts.css file (some other files also appear: the libs folder and everything in it, and .html output of your .Rmd). 
 
 They take effect in this order:<br/> 
 default < new-color.css < default-fonts.css
 
 If you want to overwrite only chunks of it (here, I changed colors in new-color.css, and fonts in default-fonts.css), be mindful of the order. You could also presumably edit the default.css.
 
-I used [http://www.color-hex.com]("http://www.color-hex.com") to find colors. For my work presentation, I just used basic black and white colors, but here I changed them so that the difference was more marked.[^1]
+I used [http://www.color-hex.com](http://www.color-hex.com) to find colors. For my work presentation, I just used basic black and white colors, but here I changed them so that the difference was more marked.[^1]
 
 Contents of **new-color.css**:
 ```{css}
@@ -138,7 +138,7 @@ I didn't set `eval = FALSE` up here in the overall options because I wanted to r
 ![](/img/chunk_options.png)
 
 
-Then you can start with your first (non-title) slide. The syntax is all Pandoc markdown, which you can use the handy [R Markdown cheat sheet for]("https://www.rstudio.com/wp-content/uploads/2016/03/rmarkdown-cheatsheet-2.0.pdf"):
+Then you can start with your first (non-title) slide. The syntax is all Pandoc markdown, which you can use the handy [R Markdown cheat sheet for](https://www.rstudio.com/wp-content/uploads/2016/03/rmarkdown-cheatsheet-2.0.pdf):
 ```{r}
 ---
 # This is the first slide!
@@ -157,7 +157,7 @@ Then you can start with your first (non-title) slide. The syntax is all Pandoc m
 
 --
 
-- This is a [link]("http://tumblr.tastefullyoffensive.com/post/171451780306/squirrel-eats-doughnut#.WpmF52aZOSM") (it me!)
+- This is a [link](http://tumblr.tastefullyoffensive.com/post/171451780306/squirrel-eats-doughnut#.WpmF52aZOSM) (it me!)
 
 
 ```
@@ -169,7 +169,7 @@ And this is what you would get, ultimately (although each bullet would appear wi
 If you want to suppress the message of an evaluated chunk, add `message = FALSE`:
 ![](/img/message_false.png)
 
-If you want to display tables, use format = 'html' in `knitr::kable`. I also used the [kableExtra]("https://cran.r-project.org/web/packages/kableExtra/vignettes/awesome_table_in_html.html") package to add a little more customization.
+If you want to display tables, use format = 'html' in `knitr::kable`. I also used the [kableExtra](https://cran.r-project.org/web/packages/kableExtra/vignettes/awesome_table_in_html.html) package to add a little more customization.
 
 ```{r}
 test_set <-
@@ -195,16 +195,16 @@ If you wanted to center it, add this to the top:
 
 And if you want to use the formatting for the title slide (here it doesn't matter, because all of my backgrounds are white), you would add class: inverse.
 
-That's it! My goal was to help convince you that you could go from 0 to slide deck in a very short amount of time; hopefully this helped. I shared the .html outputs with team members via email; they opened it with a browser and everything worked perfectly. I wasn't able to save it to pdf from a browser very well, though - it created 8x11 formatted files and didn't preserve the 4:3 ratio. I looked at some of the [documentation]("https://github.com/yihui/xaringan/wiki/Export-Slides-to-PDF") about that, but it was the end of the day and I didn't get very far. If anyone has tips, let me know!
+That's it! My goal was to help convince you that you could go from 0 to slide deck in a very short amount of time; hopefully this helped. I shared the .html outputs with team members via email; they opened it with a browser and everything worked perfectly. I wasn't able to save it to pdf from a browser very well, though - it created 8x11 formatted files and didn't preserve the 4:3 ratio. I looked at some of the [documentation](https://github.com/yihui/xaringan/wiki/Export-Slides-to-PDF) about that, but it was the end of the day and I didn't get very far. If anyone has tips, let me know!
 
 Scroll through the example deck here:[^3]
-(source code [here]("https://github.com/aczane/example_slides"))
+(source code [here](https://github.com/aczane/example_slides))
 ```{r, eval = TRUE, echo = FALSE}
-knitr::include_url('http://aczane.netlify.com/slides/xaringan_example_acz.html')
+knitr::include_url('http://aczane.netlify.com/slides/xaringan_example_acz.html#')
 ```
                                                            
-[^1]: I will add that when I tried to edit .css files in RStudio, after using Infinite Moon Reader to live preview the slides, any extra .css files I created (e.g., new-color.css, default-fonts.css)] DISAPPEARED. I don't understand the work behind the scenes and this black magic...so I just used my favorite .css editor, [Atom]("https://atom.io").
+[^1]: I will add that when I tried to edit .css files in RStudio, after using Infinite Moon Reader to live preview the slides, any extra .css files I created (e.g., new-color.css, default-fonts.css)] DISAPPEARED. I don't understand the work behind the scenes and this black magic...so I just used my favorite .css editor, [Atom](https://atom.io).
 
 [^2]: I can't for the life of me figure out how to put chunks in chunks...this is getting a little too meta, guys.
 
-[^3]: I followed [directions for embedding slide decks into blogdown posts from Tim Mastny here]("https://timmastny.rbind.io/blog/embed-slides-knitr-blogdown/").
+[^3]: I followed [directions for embedding slide decks into blogdown posts from Tim Mastny here](https://timmastny.rbind.io/blog/embed-slides-knitr-blogdown/).

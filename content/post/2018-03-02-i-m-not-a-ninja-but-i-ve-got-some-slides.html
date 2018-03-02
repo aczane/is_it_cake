@@ -19,19 +19,19 @@ tags:
 
 
 
-<p>A <a href="%22https://edwinth.github.io/blog-new-things/%22">recent blog post from Edwin Thoen</a>, suggesting that we blog about things we just learned, prompted me to write this post, because I think that there is some benefit to seeing how other people learn, and to following examples created by others who are not ninja-level experts.</p>
-<p>I spent yesterday putting together some slides at work, using the <a href="%22https://github.com/yihui/xaringan%22">xaringan</a> package. I largely followed the examples in <a href="%22https://slides.yihui.name/xaringan/%22">Yihui’s slide deck</a>, the <a href="%22https://github.com/gnab/remark/wiki%22">wiki</a>, and <a href="%22https://alison.rbind.io/post/r-ladies-slides/s%22">Alison’s slide deck and code</a>. These were <strong>wonderful</strong>.</p>
+<p>A <a href="https://edwinth.github.io/blog-new-things/">recent blog post from Edwin Thoen</a>, suggesting that we blog about things we just learned, prompted me to write this post, because I think that there is some benefit to seeing how other people learn, and to following examples created by others who are not ninja-level experts.</p>
+<p>I spent yesterday putting together some slides at work, using the <a href="https://github.com/yihui/xaringan">xaringan</a> package. I largely followed the examples in <a href="https://slides.yihui.name/xaringan/">Yihui’s slide deck</a>, the <a href="https://github.com/gnab/remark/wiki">wiki</a>, and <a href="https://alison.rbind.io/post/r-ladies-slides/s">Alison’s slide deck and code</a>. These were <strong>wonderful</strong>.</p>
 <p>I have <em>very</em> limited experience in CSS - I’ve made a flask app in Python for a project, but in general CSS makes me want to throw things and eat my computer, so…that’s where I started from. But at the end of the day, I had a basic slide set with R-generated tables, so I thought maybe I could reproduce that here, for anyone who wants to hit the ground running with very limited prior knowledge of xaringan.</p>
 <p>The documentation is all there, and theoretically you should read it all, but I tend to learn best by doing; I’ll run through the basics so that I understand where to start, but I find it the most helpful to dive into the .Rmd and the final output, and learn that way. Then it’s handy to have the resources afterward so that I can troubleshoot.</p>
 <div id="lets-get-started" class="section level2">
 <h2>Let’s Get Started</h2>
 <ol style="list-style-type: decimal">
-<li>Download <a href="%22https://github.com/yihui/xaringan%22">xaringan</a>. I work in RStudio, so my instructions and example will be specific to this method. You can install it with:</li>
+<li>Download <a href="https://github.com/yihui/xaringan">xaringan</a>. I work in RStudio, so my instructions and example will be specific to this method. You can install it with:</li>
 </ol>
 <pre class="r"><code>devtools::install_github(&#39;yihui/xaringan&#39;)</code></pre>
 <ol start="2" style="list-style-type: decimal">
 <li><p>To create a new presentation:<br/> File &gt; New File &gt; R Markdown &gt; From Template &gt; Ninja Presentation</p></li>
-<li><p>This generates a new .Rmd file - it is the .Rmd that creates <a href="%22https://slides.yihui.name/xaringan/%22">Yihui’s slide deck</a>. So, if you have the .Rmd open and the slide deck open (or just use the <strong>Infinite Moon Reader</strong> Add-in and render it in RStudio viewer/html), you can see what code pieces correspond to slide output elements.</p></li>
+<li><p>This generates a new .Rmd file - it is the .Rmd that creates <a href="https://slides.yihui.name/xaringan/">Yihui’s slide deck</a>. So, if you have the .Rmd open and the slide deck open (or just use the <strong>Infinite Moon Reader</strong> Add-in and render it in RStudio viewer/html), you can see what code pieces correspond to slide output elements.</p></li>
 <li><p>In the YAML, you would start with the default:</p></li>
 </ol>
 <pre class="r"><code>---
@@ -68,10 +68,10 @@ output:
 <img src="/img/comparison_title.png" />
 
 </div>
-<p>My understanding is that the default CSS doesn’t explicitly need to be called unless you want to modify it - Yihui gives the explanation <a href="%22https://github.com/yihui/xaringan/wiki%22">here</a>. The “default” .css file appears once you render the .Rmd, along with the default-fonts.css file (some other files also appear: the libs folder and everything in it, and .html output of your .Rmd).</p>
+<p>My understanding is that the default CSS doesn’t explicitly need to be called unless you want to modify it - Yihui gives the explanation <a href="https://github.com/yihui/xaringan/wiki">here</a>. The “default” .css file appears once you render the .Rmd, along with the default-fonts.css file (some other files also appear: the libs folder and everything in it, and .html output of your .Rmd).</p>
 <p>They take effect in this order:<br/> default &lt; new-color.css &lt; default-fonts.css</p>
 <p>If you want to overwrite only chunks of it (here, I changed colors in new-color.css, and fonts in default-fonts.css), be mindful of the order. You could also presumably edit the default.css.</p>
-<p>I used <a href="%22http://www.color-hex.com%22">http://www.color-hex.com</a> to find colors. For my work presentation, I just used basic black and white colors, but here I changed them so that the difference was more marked.<a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a></p>
+<p>I used <a href="http://www.color-hex.com" class="uri">http://www.color-hex.com</a> to find colors. For my work presentation, I just used basic black and white colors, but here I changed them so that the difference was more marked.<a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a></p>
 <p>Contents of <strong>new-color.css</strong>:</p>
 <pre class="css"><code>/*
 h1, h2, h3 - font colors for the different headers; removed text shadow
@@ -115,7 +115,7 @@ the rgba takes red, green, blue, alpha arguments
 <img src="/img/chunk_options.png" />
 
 </div>
-<p>Then you can start with your first (non-title) slide. The syntax is all Pandoc markdown, which you can use the handy <a href="%22https://www.rstudio.com/wp-content/uploads/2016/03/rmarkdown-cheatsheet-2.0.pdf%22">R Markdown cheat sheet for</a>:</p>
+<p>Then you can start with your first (non-title) slide. The syntax is all Pandoc markdown, which you can use the handy <a href="https://www.rstudio.com/wp-content/uploads/2016/03/rmarkdown-cheatsheet-2.0.pdf">R Markdown cheat sheet for</a>:</p>
 <pre class="r"><code>---
 # This is the first slide!
 
@@ -133,14 +133,14 @@ the rgba takes red, green, blue, alpha arguments
 
 --
 
-- This is a [link](&quot;http://tumblr.tastefullyoffensive.com/post/171451780306/squirrel-eats-doughnut#.WpmF52aZOSM&quot;) (it me!)</code></pre>
+- This is a [link](http://tumblr.tastefullyoffensive.com/post/171451780306/squirrel-eats-doughnut#.WpmF52aZOSM) (it me!)</code></pre>
 <p>And this is what you would get, ultimately (although each bullet would appear with successive advances - you can see it in the full slide deck at the bottom of the post):</p>
 <div class="figure">
 <img src="/img/first_slide.png" />
 
 </div>
 <p>If you want to suppress the message of an evaluated chunk, add <code>message = FALSE</code>: <img src="/img/message_false.png" /></p>
-<p>If you want to display tables, use format = ‘html’ in <code>knitr::kable</code>. I also used the <a href="%22https://cran.r-project.org/web/packages/kableExtra/vignettes/awesome_table_in_html.html%22">kableExtra</a> package to add a little more customization.</p>
+<p>If you want to display tables, use format = ‘html’ in <code>knitr::kable</code>. I also used the <a href="https://cran.r-project.org/web/packages/kableExtra/vignettes/awesome_table_in_html.html">kableExtra</a> package to add a little more customization.</p>
 <pre class="r"><code>test_set &lt;-
   mtcars %&gt;%
   select(mpg, cyl, disp, hp, drat, wt)
@@ -160,14 +160,14 @@ knitr::kable(head(), format = &#39;html&#39;) %&gt;%
 
 </div>
 <p>And if you want to use the formatting for the title slide (here it doesn’t matter, because all of my backgrounds are white), you would add class: inverse.</p>
-<p>That’s it! My goal was to help convince you that you could go from 0 to slide deck in a very short amount of time; hopefully this helped. I shared the .html outputs with team members via email; they opened it with a browser and everything worked perfectly. I wasn’t able to save it to pdf from a browser very well, though - it created 8x11 formatted files and didn’t preserve the 4:3 ratio. I looked at some of the <a href="%22https://github.com/yihui/xaringan/wiki/Export-Slides-to-PDF%22">documentation</a> about that, but it was the end of the day and I didn’t get very far. If anyone has tips, let me know!</p>
-<p>Scroll through the example deck here:<a href="#fn3" class="footnoteRef" id="fnref3"><sup>3</sup></a> (source code <a href="%22https://github.com/aczane/example_slides%22">here</a>) <iframe src="http://aczane.netlify.com/slides/xaringan_example_acz.html" width="672" height="400px"></iframe></p>
+<p>That’s it! My goal was to help convince you that you could go from 0 to slide deck in a very short amount of time; hopefully this helped. I shared the .html outputs with team members via email; they opened it with a browser and everything worked perfectly. I wasn’t able to save it to pdf from a browser very well, though - it created 8x11 formatted files and didn’t preserve the 4:3 ratio. I looked at some of the <a href="https://github.com/yihui/xaringan/wiki/Export-Slides-to-PDF">documentation</a> about that, but it was the end of the day and I didn’t get very far. If anyone has tips, let me know!</p>
+<p>Scroll through the example deck here:<a href="#fn3" class="footnoteRef" id="fnref3"><sup>3</sup></a> (source code <a href="https://github.com/aczane/example_slides">here</a>) <iframe src="http://aczane.netlify.com/slides/xaringan_example_acz.html#" width="672" height="400px"></iframe></p>
 </div>
 <div class="footnotes">
 <hr />
 <ol>
-<li id="fn1"><p>I will add that when I tried to edit .css files in RStudio, after using Infinite Moon Reader to live preview the slides, any extra .css files I created (e.g., new-color.css, default-fonts.css)] DISAPPEARED. I don’t understand the work behind the scenes and this black magic…so I just used my favorite .css editor, <a href="%22https://atom.io%22">Atom</a>.<a href="#fnref1">↩</a></p></li>
+<li id="fn1"><p>I will add that when I tried to edit .css files in RStudio, after using Infinite Moon Reader to live preview the slides, any extra .css files I created (e.g., new-color.css, default-fonts.css)] DISAPPEARED. I don’t understand the work behind the scenes and this black magic…so I just used my favorite .css editor, <a href="https://atom.io">Atom</a>.<a href="#fnref1">↩</a></p></li>
 <li id="fn2"><p>I can’t for the life of me figure out how to put chunks in chunks…this is getting a little too meta, guys.<a href="#fnref2">↩</a></p></li>
-<li id="fn3"><p>I followed <a href="%22https://timmastny.rbind.io/blog/embed-slides-knitr-blogdown/%22">directions for embedding slide decks into blogdown posts from Tim Mastny here</a>.<a href="#fnref3">↩</a></p></li>
+<li id="fn3"><p>I followed <a href="https://timmastny.rbind.io/blog/embed-slides-knitr-blogdown/">directions for embedding slide decks into blogdown posts from Tim Mastny here</a>.<a href="#fnref3">↩</a></p></li>
 </ol>
 </div>
