@@ -162,7 +162,7 @@ Then you can start with your first (non-title) slide. The syntax is all Pandoc m
 
 ```
 
-And this is what you would get, ultimately (although each bullet would appear with successive advances):
+And this is what you would get, ultimately (although each bullet would appear with successive advances - you can see it in the full slide deck at the bottom of the post):
 
 ![](/img/first_slide.png)
 
