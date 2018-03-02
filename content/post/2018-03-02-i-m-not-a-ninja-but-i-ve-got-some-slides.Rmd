@@ -195,6 +195,8 @@ If you wanted to center it, add this to the top:
 
 And if you want to use the formatting for the title slide (here it doesn't matter, because all of my backgrounds are white), you would add class: inverse.
 
+## We did it!
+
 That's it! My goal was to help convince you that you could go from 0 to slide deck in a very short amount of time; hopefully this helped. I shared the .html outputs with team members via email; they opened it with a browser and everything worked perfectly. I wasn't able to save it to pdf from a browser very well, though - it created 8x11 formatted files and didn't preserve the 4:3 ratio. I looked at some of the [documentation](https://github.com/yihui/xaringan/wiki/Export-Slides-to-PDF) about that, but it was the end of the day and I didn't get very far. If anyone has tips, let me know!
 
 Scroll through the example deck here:[^3]
