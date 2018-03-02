@@ -57,6 +57,7 @@ output:
 ---
 ```
 
+This will format your title slide.
 I edited it this way:
 ```{r}
 ---
@@ -127,6 +128,48 @@ the rgba takes red, green, blue, alpha arguments
 }
 
 ```
+
+5. To edit and create your slides, you'll first want to set your code preferences. 
+
+I didn't set eval = FALSE because I wanted to run tables that would be included in my code.
+
+```{r setup, include=FALSE}
+options(htmltools.dir.version = FALSE)
+knitr::opts_chunk$set(tidy = FALSE, echo = FALSE)
+```
+
+Then you can start with your first (non-title) slide.
+```{r}
+
+```
+
+# The --- denotes a new slide here
+# The "#" will be the header for that slide
+---
+# This is the first slide!
+
+--
+
+- You can have elements appear in succession, versus all at once
+
+--
+
+- Like this
+
+--
+
+- And this
+
+--
+
+- This is a [link]("http://tumblr.tastefullyoffensive.com/post/171451780306/squirrel-eats-doughnut#.WpmF52aZOSM") (it me!)
+
+
+```
+
+
+
+
 
 
 
