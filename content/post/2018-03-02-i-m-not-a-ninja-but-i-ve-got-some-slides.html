@@ -21,8 +21,11 @@ draft: True
 
 
 <p>A <a href="%22https://edwinth.github.io/blog-new-things/%22">recent blog post from Edwin Thoen</a>, suggesting that we blog about things we just learned, prompted me to write this post, because I think that there is some benefit to seeing how other people learn, and to following examples created by others who are not ninja-level experts.</p>
-<p>I spent yesterday putting together some slides at work, using the <a href="%22https://github.com/yihui/xaringan%22">xaringan</a> package. I largely followed the examples in <a href="%22https://slides.yihui.name/xaringan/%22">Yihui’s slide deck</a>, the <a href="%22https://github.com/gnab/remark/wiki%22">wiki</a>, and <a href="%22https://alison.rbind.io/post/r-ladies-slides/s%22">Alison’s slide deck and code</a>. I have <em>very</em> limited experience in CSS - I’ve made a flask app in Python for a project, but in general CSS makes me want to throw things and eat my computer, so…that’s where I started from. But at the end of the day, I had a basic slide set with R-generated tables, so I thought maybe I could reproduce that here, for anyone who wants to hit the ground running with very limited prior knowledge.</p>
+<p>I spent yesterday putting together some slides at work, using the <a href="%22https://github.com/yihui/xaringan%22">xaringan</a> package. I largely followed the examples in <a href="%22https://slides.yihui.name/xaringan/%22">Yihui’s slide deck</a>, the <a href="%22https://github.com/gnab/remark/wiki%22">wiki</a>, and <a href="%22https://alison.rbind.io/post/r-ladies-slides/s%22">Alison’s slide deck and code</a>. These were <strong>wonderful</strong>.</p>
+<p>I have <em>very</em> limited experience in CSS - I’ve made a flask app in Python for a project, but in general CSS makes me want to throw things and eat my computer, so…that’s where I started from. But at the end of the day, I had a basic slide set with R-generated tables, so I thought maybe I could reproduce that here, for anyone who wants to hit the ground running with very limited prior knowledge.</p>
 <p>The documentation is all there, and theoretically you should read it all, but I tend to learn best by doing; I’ll run through the basics so that I understand where to start, but I find it the most helpful to see the .Rmd and the final output, and learn that way.</p>
+<div id="lets-get-started" class="section level2">
+<h2>Let’s Get Started</h2>
 <ol style="list-style-type: decimal">
 <li>Download <a href="%22https://github.com/yihui/xaringan%22">xaringan</a>. I work in RStudio, so my instructions and example will be specific to this method. You can install it with:</li>
 </ol>
@@ -45,7 +48,7 @@ output:
       highlightLines: true
       countIncrementalSlides: false
 ---</code></pre>
-<p>I edited it this way:</p>
+<p>This will format your title slide. I edited it this way:</p>
 <pre class="r"><code>---
 title: &quot;Title Goes Here&quot;
 author: &quot;Ariel C. Zane&lt;br/&gt;More Lines Here&quot;
@@ -54,7 +57,7 @@ output:
   xaringan::moon_reader:
     # to change color schemes, add this line below
     # to incorporate customized css
-    {{css: [&quot;default&quot;, &quot;new-color.css&quot;, &quot;default-fonts.css&quot;]}}
+    css: [&quot;default&quot;, &quot;new-color.css&quot;, &quot;default-fonts.css&quot;]
     lib_dir: libs
     nature:
       highlightStyle: github
@@ -105,6 +108,75 @@ the rgba takes red, green, blue, alpha arguments
   color: #E7165F;
 }
 </code></pre>
+<ol start="5" style="list-style-type: decimal">
+<li>To edit and create your slides, you’ll first want to set your code preferences.</li>
+</ol>
+<p>I didn’t set eval = FALSE up here in the overall options because I wanted to run tables that would be included in my code. For later chunks that I didn’t want to be evaluated, I just added eval = FALSE where necessary.</p>
+<div class="figure">
+<img src="/img/chunk_options.png" />
+
+</div>
+<p>Then you can start with your first (non-title) slide. The syntax is all Pandoc markdown, which you can use the handy <a href="%22https://www.rstudio.com/wp-content/uploads/2016/03/rmarkdown-cheatsheet-2.0.pdf%22">R Markdown cheat sheet for</a>:</p>
+<pre class="r"><code>---
+# This is the first slide!
+
+--
+
+- You can have elements appear in succession, versus all at once
+
+--
+
+- Like this
+
+--
+
+- And this
+
+--
+
+- This is a [link](&quot;http://tumblr.tastefullyoffensive.com/post/171451780306/squirrel-eats-doughnut#.WpmF52aZOSM&quot;) (it me!)</code></pre>
+<p>And this is what you would get, ultimately (although each bullet would appear with successive advances):</p>
+<div class="figure">
+<img src="/img/first_slide.png" />
+
+</div>
+<p>If you want to suppress the message of an evaluated chunk:</p>
+<pre class="r"><code>library(tidyverse)</code></pre>
+<p>If you want to display tables, use format = ‘html’ in <code>knitr::kable</code>. I also used the <a href="%22https://cran.r-project.org/web/packages/kableExtra/vignettes/awesome_table_in_html.html%22">kableExtra</a> package to add a little more customization.</p>
+<pre class="r"><code>test_set &lt;-
+  mtcars %&gt;%
+  select(mpg, cyl, disp, hp, drat, wt)
+
+knitr::kable(head(), format = &#39;html&#39;) %&gt;%
+  kable_styling(full_width = F, font_size = 8)</code></pre>
+<p>So the slide .Rmd would look like:</p>
+<div class="figure">
+<img src="/img/slide_rmd.png" />
+
+</div>
+<p>If you wanted to center it, add this to the top:</p>
+<table>
+<thead>
+<tr class="header">
+<th>```r</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>class: center</td>
+</tr>
+<tr class="even">
+<td>```</td>
+</tr>
+</tbody>
+</table>
+<div class="figure">
+<img src="/img/center_comp.png" />
+
+</div>
+<p>And if you want to use the formatting for the title slide (here it doesn’t matter, because all of my backgrounds are white), you would add class: inverse.</p>
+<p>Scroll through the deck: (source code <a href="%22https://github.com/aczane/example_slides%22">here</a>) <iframe src="http://aczane.netlify.com/slides/xaringan_example_acz.html" width="672" height="400px"></iframe></p>
+</div>
 <div class="footnotes">
 <hr />
 <ol>

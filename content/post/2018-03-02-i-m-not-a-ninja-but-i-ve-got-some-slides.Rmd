@@ -72,7 +72,7 @@ output:
   xaringan::moon_reader:
     # to change color schemes, add this line below
     # to incorporate customized css
-    {{css: ["default", "new-color.css", "default-fonts.css"]}}
+    css: ["default", "new-color.css", "default-fonts.css"]
     lib_dir: libs
     nature:
       highlightStyle: github
@@ -136,10 +136,8 @@ the rgba takes red, green, blue, alpha arguments
 
 I didn't set eval = FALSE up here in the overall options because I wanted to run tables that would be included in my code. For later chunks that I didn't want to be evaluated, I just added eval = FALSE where necessary.
 
-```{r setup, include=FALSE}
-options(htmltools.dir.version = FALSE)
-knitr::opts_chunk$set(tidy = FALSE, echo = FALSE)
-```
+![](/img/chunk_options.png)
+
 
 Then you can start with your first (non-title) slide. The syntax is all Pandoc markdown, which you can use the handy [R Markdown cheat sheet for]("https://www.rstudio.com/wp-content/uploads/2016/03/rmarkdown-cheatsheet-2.0.pdf"):
 ```{r}
@@ -170,7 +168,6 @@ And this is what you would get, ultimately (although each bullet would appear wi
 ![](/img/first_slide.png)
 
 If you want to suppress the message of an evaluated chunk:
---
 ```{r, message = FALSE}
 library(tidyverse)
 ```
@@ -183,28 +180,27 @@ test_set <-
   select(mpg, cyl, disp, hp, drat, wt)
 
 knitr::kable(head(), format = 'html') %>%
-kable_styling(full_width = F, font_size = 8)
+  kable_styling(full_width = F, font_size = 8)
 ```
 
 So the slide .Rmd would look like:
-
-![](/img/slide_rmd.png)
+  
+  ![](/img/slide_rmd.png)
 
 If you wanted to center it, add this to the top:
-```{r}
+  ```{r}
 ---
-class: center
+  class: center
 ```
 
 ![](/img/center_comp.png)
 
 And if you want to use the formatting for the title slide (here it doesn't matter, because all of my backgrounds are white), you would add class: inverse.
 
-Okay, that sums it up! Scroll through the mini example slide deck:
-```{r}
+Scroll through the deck:
+(source code [here]("https://github.com/aczane/example_slides"))
+```{r, eval = TRUE, echo = FALSE}
 knitr::include_url('http://aczane.netlify.com/slides/xaringan_example_acz.html')
 ```
-
-
-
+                                                           
 [^1]: I will add that when I tried to edit .css files in RStudio, after using Infinite Moon Reader to live preview the slides, any extra .css files I created (e.g., new-color.css, default-fonts.css)] DISAPPEARED. I don't understand the work behind the scenes and this black magic...so I just used my favorite .css editor, [Atom]("https://atom.io").
