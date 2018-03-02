@@ -207,4 +207,5 @@ knitr::include_url('http://aczane.netlify.com/slides/xaringan_example_acz.html#1
 
 [^2]: I can't for the life of me figure out how to put chunks in chunks...this is getting a little too meta, guys.
 
-[^3]: I followed [directions for embedding slide decks into blogdown posts from Tim Mastny here](https://timmastny.rbind.io/blog/embed-slides-knitr-blogdown/).
+[^3]: I followed [directions for embedding slide decks into blogdown posts from Tim Mastny here](https://timmastny.rbind.io/blog/embed-slides-knitr-blogdown/). If you want it to work in Safari, you do need to add the #1 to the url of your slides, or else it will not work. E.g.,
+`knitr::include_url('http://aczane.netlify.com/slides/xaringan_example_acz.html#1')`
