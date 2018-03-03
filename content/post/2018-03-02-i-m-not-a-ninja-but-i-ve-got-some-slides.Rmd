@@ -24,7 +24,7 @@ knitr::opts_chunk$set(tidy = FALSE, eval = FALSE)
 
 A [recent blog post from Edwin Thoen](https://edwinth.github.io/blog-new-things/), suggesting that we blog about things we just learned, prompted me to write this post, because I think that there is some benefit to seeing how other people learn, and to following examples created by others who are not ninja-level experts. 
 
-I spent yesterday putting together some slides at work, using the [xaringan](https://github.com/yihui/xaringan) package. I largely followed the examples in [Yihui's slide deck](https://slides.yihui.name/xaringan/), the [wiki](https://github.com/gnab/remark/wiki), and [Alison's slide deck and code](https://alison.rbind.io/post/r-ladies-slides/). These were **wonderful**. 
+I spent yesterday putting together some slides at work, using the [xaringan](https://github.com/yihui/xaringan) package. I largely followed the examples in [Yihui's slide deck](https://slides.yihui.name/xaringan/), the [wiki](https://github.com/gnab/remark/wiki), and [Alison's slide deck and code](https://alison.rbind.io/post/r-ladies-slides/). These were **wonderful** and really got me up and running quickly. 
 
 I have *very* limited experience in CSS - I've made a flask app in Python for a project, but in general CSS makes me want to throw things and eat my computer, so...that's where I started from. But at the end of the day, I had a basic slide set with R-generated tables, so I thought maybe I could reproduce that here, for anyone who wants to hit the ground running with very limited prior knowledge of xaringan.
 
