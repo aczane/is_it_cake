@@ -19,6 +19,9 @@ tags:
 
 
 
+<ul>
+<li><strong>Note</strong>: the slides rendered at the bottom don’t seem to work well on mobile (iPhone) or Safari, currently. It’s been tested on Chrome and works well there.*</li>
+</ul>
 <p>A <a href="https://edwinth.github.io/blog-new-things/">recent blog post from Edwin Thoen</a>, suggesting that we blog about things we just learned, prompted me to write this post, because I think that there is some benefit to seeing how other people learn, and to following examples created by others who are not ninja-level experts.</p>
 <p>I spent yesterday putting together some slides at work, using the <a href="https://github.com/yihui/xaringan">xaringan</a> package. I largely followed the examples in <a href="https://slides.yihui.name/xaringan/">Yihui’s slide deck</a>, the <a href="https://github.com/gnab/remark/wiki">wiki</a>, and <a href="https://alison.rbind.io/post/r-ladies-slides/">Alison’s slide deck and code</a>. These were <strong>wonderful</strong> and really got me up and running quickly.</p>
 <p>I have <em>very</em> limited experience in CSS - I’ve made a flask app in Python for a project, but in general CSS makes me want to throw things and eat my computer, so…that’s where I started from. But at the end of the day, I had a basic slide set with R-generated tables, so I thought maybe I could reproduce that here, for anyone who wants to hit the ground running with very limited prior knowledge of xaringan.</p>
@@ -173,6 +176,6 @@ knitr::kable(head(), format = &#39;html&#39;) %&gt;%
 <ol>
 <li id="fn1"><p>I will add that when I tried to edit .css files in RStudio, after using Infinite Moon Reader to live preview the slides, any extra .css files I created (e.g., new-color.css, default-fonts.css)] DISAPPEARED. I don’t understand the work behind the scenes and this black magic…so I just used my favorite .css editor, <a href="https://atom.io">Atom</a>.<a href="#fnref1">↩</a></p></li>
 <li id="fn2"><p>I can’t for the life of me figure out how to put chunks in chunks…this is getting a little too meta, guys.<a href="#fnref2">↩</a></p></li>
-<li id="fn3"><p>I followed <a href="https://timmastny.rbind.io/blog/embed-slides-knitr-blogdown/">directions for embedding slide decks into blogdown posts from Tim Mastny here</a>. If you want it to work in Safari, you do need to add the #1 to the url of your slides, or else it will not work. E.g., <code>knitr::include_url('http://aczane.netlify.com/slides/xaringan_example_acz.html#1')</code><a href="#fnref3">↩</a></p></li>
+<li id="fn3"><p>I followed <a href="https://timmastny.rbind.io/blog/embed-slides-knitr-blogdown/">directions for embedding slide decks into blogdown posts from Tim Mastny here</a>. If you want it to work in Safari, you do need to add the #1 to the url of your slides, or else it will not work. E.g., <code>knitr::include_url('https://aczane.netlify.com/slides/xaringan_example_acz.html#1')</code><a href="#fnref3">↩</a></p></li>
 </ol>
 </div>
