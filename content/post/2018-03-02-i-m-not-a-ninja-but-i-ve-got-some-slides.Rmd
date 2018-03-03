@@ -205,7 +205,7 @@ Scroll through the example deck here:[^3]
 (source code [here](https://github.com/aczane/example_slides))
 
 ```{r, eval = TRUE, echo = FALSE}
-knitr::include_url('http://aczane.netlify.com/slides/xaringan_example_acz.html/')
+knitr::include_url('https://aczane.netlify.com/slides/xaringan_example_acz.html#1')
 ```
                                                            
 [^1]: I will add that when I tried to edit .css files in RStudio, after using Infinite Moon Reader to live preview the slides, any extra .css files I created (e.g., new-color.css, default-fonts.css)] DISAPPEARED. I don't understand the work behind the scenes and this black magic...so I just used my favorite .css editor, [Atom](https://atom.io).
