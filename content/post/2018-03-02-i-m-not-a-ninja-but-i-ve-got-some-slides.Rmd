@@ -21,8 +21,7 @@ tags:
 options(htmltools.dir.version = FALSE)
 knitr::opts_chunk$set(tidy = FALSE, eval = FALSE)
 ```
-
-* **Note**: the slides rendered at the bottom don't seem to work well on mobile (iPhone)*
+**Note**: _the slides rendered at the bottom don't seem to work well on mobile (at least not on iPhone)_
 
 A [recent blog post from Edwin Thoen](https://edwinth.github.io/blog-new-things/), suggesting that we blog about things we just learned, prompted me to write this post, because I think that there is some benefit to seeing how other people learn, and to following examples created by others who are not ninja-level experts. 
 
