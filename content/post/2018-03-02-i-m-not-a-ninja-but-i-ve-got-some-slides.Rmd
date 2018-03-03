@@ -72,7 +72,7 @@ output:
   xaringan::moon_reader:
     # to change color schemes, add this line below
     # to incorporate customized css
-    {{css: ["default", "new-color.css", "default-fonts.css"]}}
+    css: ["default", "new-color.css", "default-fonts.css"]
     lib_dir: libs
     nature:
       highlightStyle: github
