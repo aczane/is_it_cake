@@ -1,0 +1,47 @@
+---
+title: The “biblionetwork” package
+author: Ariel Zane
+date: '2018-03-27'
+slug: the-biblionetwork-package
+categories:
+  - package
+  - tutorial
+  - dataset
+  - network analysis
+  - graph
+tags:
+  - candy
+  - package
+  - tutorial
+  - vignette
+  - network
+draft: TRUE
+---
+
+```{r setup, include=FALSE}
+options(htmltools.dir.version = FALSE)
+knitr::opts_chunk$set(tidy = FALSE, eval = FALSE)
+```
+
+After the high of rstudio::conf 2017, I made a (tiny) list of R-related goals for myself:
+
+```{r echo = FALSE, eval = TRUE}
+blogdown::shortcode('tweet', '960859452244099072')
+```
+
+Happily, I was able to knock the [second one](https://aczane.netlify.com/2018/02/08/the-first-and-namesake-post-is-it-cake/) out back in February, but the first one has taken more work. 
+
+The `biblionetwork` package has three functions, currently. They are (so creatively named, you guys):
+`make_edgelist` : creates edgelists in dataframe format
+`make_nodelist` : creates nodelists in dataframe format
+`make_groupings`: 
+
+I'm not sure if a package already exists out there that performs these functions, but I couldn't find one when I first started working with co-occurrence lists and networks. I did find a great example from [Francois Briatte](https://www.r-bloggers.com/turning-keywords-into-a-co-occurrence-network/), which I was able to modify for my work. I've since changed the script even further, and benchmarked it to gauge speed:[^1]
+
+```{r echo = FALSE, eval = TRUE}
+blogdown::shortcode('tweet', '973903870366814209')
+```
+
+Mind you, it's still not very fast (especially for very large networks, ~10K nodes and >= 10^6 edges). 
+
+[^1][Alexej's post](http://www.alexejgossmann.com/benchmarking_r/) is extremely helpful for benchmarking, btw.
