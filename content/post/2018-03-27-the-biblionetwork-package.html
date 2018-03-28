@@ -24,7 +24,87 @@ draft: TRUE
 {{% tweet "960859452244099072" %}}
 <p>Happily, I was able to knock the <a href="https://aczane.netlify.com/2018/02/08/the-first-and-namesake-post-is-it-cake/">second one</a> out back in February, but the first one has taken more work.</p>
 <p>The <code>biblionetwork</code> package has three functions, currently. They are (so creatively named, you guys): <code>make_edgelist</code> : creates edgelists in dataframe format <code>make_nodelist</code> : creates nodelists in dataframe format <code>make_groupings</code>:</p>
-<p>I’m not sure if a package already exists out there that performs these functions, but I couldn’t find one when I first started working with co-occurrence lists and networks. I did find a great example from <a href="https://www.r-bloggers.com/turning-keywords-into-a-co-occurrence-network/">Francois Briatte</a>, which I was able to modify for my work. I’ve since changed the script even further, and benchmarked it to gauge speed:[^1]</p>
+<p>I’m not sure if a package already exists out there that performs these functions, but I couldn’t find one when I first started working with co-occurrence lists and networks. I did find a great example from <a href="https://www.r-bloggers.com/turning-keywords-into-a-co-occurrence-network/">Francois Briatte</a>, which I was able to modify for my work. I’ve since changed the script even further, and benchmarked it to gauge speed: <a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a></p>
 {{% tweet "973903870366814209" %}}
-<p>Mind you, it’s still not very fast (especially for very large networks, ~10K nodes and &gt;= 10^6 edges).</p>
-<p>[^1]<a href="http://www.alexejgossmann.com/benchmarking_r/">Alexej’s post</a> is extremely helpful for benchmarking, btw.</p>
+<p>Mind you, it’s still not very fast (especially for very large networks, ~10K nodes and &gt;= 10^6 edges). But it works!</p>
+<p>I’m going to walk through it with the “Candy” dataset from <a href="https://data.fivethirtyeight.com">FiveThirtyEight</a>. This is a dataset of candy types, with a bunch of variables describing the candies; the full description of the data can be found <a href="https://github.com/fivethirtyeight/data/tree/master/candy-power-ranking">here</a>. We’re going to rework it a little bit and create a network graph of the candies; candy with similar traits should be closer to each other and linked. I’m only interested in part of the dataset (not the percentages at the end), so I’ll just select those columns.</p>
+<pre class="r"><code>library(tidyverse)
+
+# load the data and select the desired columns
+
+dat &lt;- read_csv(&quot;candy-data.csv&quot;) %&gt;%
+  select(competitorname, chocolate, fruity, caramel,
+         peanutyalmondy, nougat, crispedricewafer, hard, bar,
+         pluribus)
+
+# check it out
+
+head(dat)</code></pre>
+<pre><code>## # A tibble: 6 x 10
+##   competitorname chocolate fruity caramel peanutyalmondy nougat
+##            &lt;chr&gt;     &lt;int&gt;  &lt;int&gt;   &lt;int&gt;          &lt;int&gt;  &lt;int&gt;
+## 1      100 Grand         1      0       1              0      0
+## 2   3 Musketeers         1      0       0              0      1
+## 3       One dime         0      0       0              0      0
+## 4    One quarter         0      0       0              0      0
+## 5      Air Heads         0      1       0              0      0
+## 6     Almond Joy         1      0       0              1      0
+## # ... with 4 more variables: crispedricewafer &lt;int&gt;, hard &lt;int&gt;,
+## #   bar &lt;int&gt;, pluribus &lt;int&gt;</code></pre>
+<p>The descriptive columns are categorical variables - “1”&quot; indicating “yes,” (e.g., a “1” in “chocolate” means it is chocolate or contains chocolate), and “0” for “no.” We’re going to change this coding a little bit and create text instead. There is probably a more elegant way of doing this, but messing with extracting and looping over colnames is something I don’t want to touch with a long stick, so…</p>
+<pre class="r"><code># create new columns with text instead of binary coding
+
+dat_labels &lt;-
+  dat %&gt;%
+  mutate(choc_lab = ifelse(chocolate == &quot;1&quot;, &quot;chocolate&quot;, &quot;&quot;),
+         fruit_lab = ifelse(fruity == &quot;1&quot;, &quot;fruity&quot;, &quot;&quot;),
+         car_lab = ifelse(caramel == &quot;1&quot;, &quot;caramel&quot;, &quot;&quot;),
+         pea_lab = ifelse(peanutyalmondy == &quot;1&quot;,
+                                 &quot;peanutyalmondy&quot;, &quot;&quot;),
+         nou_lab = ifelse(nougat == &quot;1&quot;, &quot;nougat&quot;, &quot;&quot;),
+         crisp_lab = ifelse(crispedricewafer == &quot;1&quot;,
+                                   &quot;crispedricewafer&quot;, &quot;&quot;),
+         hard_lab = ifelse(hard == &quot;1&quot;, &quot;hard&quot;, &quot;&quot;),
+         bar_lab = ifelse(bar == &quot;1&quot;, &quot;bar&quot;, &quot;&quot;),
+         plu_lab = ifelse(pluribus == &quot;1&quot;, &quot;pluribus&quot;, &quot;&quot;))
+
+# and check
+
+head(dat_labels)</code></pre>
+<pre><code>## # A tibble: 6 x 19
+##   competitorname chocolate fruity caramel peanutyalmondy nougat
+##            &lt;chr&gt;     &lt;int&gt;  &lt;int&gt;   &lt;int&gt;          &lt;int&gt;  &lt;int&gt;
+## 1      100 Grand         1      0       1              0      0
+## 2   3 Musketeers         1      0       0              0      1
+## 3       One dime         0      0       0              0      0
+## 4    One quarter         0      0       0              0      0
+## 5      Air Heads         0      1       0              0      0
+## 6     Almond Joy         1      0       0              1      0
+## # ... with 13 more variables: crispedricewafer &lt;int&gt;, hard &lt;int&gt;,
+## #   bar &lt;int&gt;, pluribus &lt;int&gt;, choc_lab &lt;chr&gt;, fruit_lab &lt;chr&gt;,
+## #   car_lab &lt;chr&gt;, pea_lab &lt;chr&gt;, nou_lab &lt;chr&gt;, crisp_lab &lt;chr&gt;,
+## #   hard_lab &lt;chr&gt;, bar_lab &lt;chr&gt;, plu_lab &lt;chr&gt;</code></pre>
+<p>Now! We’re going to make a final column that contains all descriptors of each candy, using <code>dplyr::unite</code>.</p>
+<pre class="r"><code># create the final dataset, collapsing all text labels into one complete &quot;descriptor&quot;&quot; label
+
+candy &lt;-
+  dat_labels %&gt;%
+  unite(descriptor, 11:19, sep = &quot;&quot;) %&gt;%
+  select(competitorname, descriptor)
+
+head(candy) </code></pre>
+<pre><code>## # A tibble: 6 x 2
+##   competitorname                          descriptor
+##            &lt;chr&gt;                               &lt;chr&gt;
+## 1      100 Grand chocolatecaramelcrispedricewaferbar
+## 2   3 Musketeers                  chocolatenougatbar
+## 3       One dime                                    
+## 4    One quarter                                    
+## 5      Air Heads                              fruity
+## 6     Almond Joy          chocolatepeanutyalmondybar</code></pre>
+<div class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p><a href="http://www.alexejgossmann.com/benchmarking_r/">Alexej’s post</a> is extremely helpful for benchmarking, btw.<a href="#fnref1">↩</a></p></li>
+</ol>
+</div>

@@ -36,12 +36,80 @@ The `biblionetwork` package has three functions, currently. They are (so creativ
 `make_nodelist` : creates nodelists in dataframe format
 `make_groupings`: 
 
-I'm not sure if a package already exists out there that performs these functions, but I couldn't find one when I first started working with co-occurrence lists and networks. I did find a great example from [Francois Briatte](https://www.r-bloggers.com/turning-keywords-into-a-co-occurrence-network/), which I was able to modify for my work. I've since changed the script even further, and benchmarked it to gauge speed:[^1]
+I'm not sure if a package already exists out there that performs these functions, but I couldn't find one when I first started working with co-occurrence lists and networks. I did find a great example from [Francois Briatte](https://www.r-bloggers.com/turning-keywords-into-a-co-occurrence-network/), which I was able to modify for my work. I've since changed the script even further, and benchmarked it to gauge speed: [^1]
 
 ```{r echo = FALSE, eval = TRUE}
 blogdown::shortcode('tweet', '973903870366814209')
 ```
 
-Mind you, it's still not very fast (especially for very large networks, ~10K nodes and >= 10^6 edges). 
+Mind you, it's still not very fast (especially for very large networks, ~10K nodes and >= 10^6 edges). But it works!
 
-[^1][Alexej's post](http://www.alexejgossmann.com/benchmarking_r/) is extremely helpful for benchmarking, btw.
+I'm going to walk through it with the "Candy" dataset from [FiveThirtyEight](https://data.fivethirtyeight.com). This is a dataset of candy types, with a bunch of variables describing the candies; the full description of the data can be found [here](https://github.com/fivethirtyeight/data/tree/master/candy-power-ranking). We're going to rework it a little bit and create a network graph of the candies; candy with similar traits should be closer to each other and linked. I'm only interested in part of the dataset (not the percentages at the end), so I'll just select those columns.
+
+```{r eval = FALSE, echo = TRUE}
+library(tidyverse)
+
+# load the data and select the desired columns
+
+dat <- read_csv("candy-data.csv") %>%
+  select(competitorname, chocolate,	fruity,	caramel,
+         peanutyalmondy, nougat, crispedricewafer, hard, bar,
+         pluribus)
+
+# check it out
+
+head(dat)
+```
+
+```{r eval = TRUE, message = F, echo = FALSE}
+library(tidyverse)
+
+dat <- read_csv("https://raw.githubusercontent.com/fivethirtyeight/data/master/candy-power-ranking/candy-data.csv") %>%
+  select(competitorname, chocolate,	fruity,	caramel,
+         peanutyalmondy, nougat, crispedricewafer, hard, bar,
+         pluribus)
+
+head(dat)
+
+```
+The descriptive columns are categorical variables - "1"" indicating "yes," (e.g., a "1" in "chocolate" means it is chocolate or contains chocolate), and "0" for "no." We're going to change this coding a little bit and create text instead. There is probably a more elegant way of doing this, but messing with extracting and looping over colnames is something I don't want to touch with a long stick, so...
+
+```{r eval = TRUE, echo = TRUE}
+
+# create new columns with text instead of binary coding
+
+dat_labels <-
+  dat %>%
+  mutate(choc_lab = ifelse(chocolate == "1", "chocolate", ""),
+         fruit_lab = ifelse(fruity == "1", "fruity", ""),
+         car_lab = ifelse(caramel == "1", "caramel", ""),
+         pea_lab = ifelse(peanutyalmondy == "1",
+                                 "peanutyalmondy", ""),
+         nou_lab = ifelse(nougat == "1", "nougat", ""),
+         crisp_lab = ifelse(crispedricewafer == "1",
+                                   "crispedricewafer", ""),
+         hard_lab = ifelse(hard == "1", "hard", ""),
+         bar_lab = ifelse(bar == "1", "bar", ""),
+         plu_lab = ifelse(pluribus == "1", "pluribus", ""))
+
+# and check
+
+head(dat_labels)
+
+```
+Now! We're going to make a final column that contains all descriptors of each candy, using `dplyr::unite`.
+
+```{r eval = TRUE, echo = TRUE}
+
+# create the final dataset, collapsing all text labels into one complete "descriptor"" label
+
+candy <-
+  dat_labels %>%
+  unite(descriptor, 11:19, sep = "") %>%
+  select(competitorname, descriptor)
+
+head(candy) 
+```
+
+
+[^1]:[Alexej's post](http://www.alexejgossmann.com/benchmarking_r/) is extremely helpful for benchmarking, btw.
