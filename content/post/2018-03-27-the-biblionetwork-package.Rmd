@@ -112,9 +112,9 @@ dat_labels %<>%
 dat_long <- gather(dat_labels, key = type, value = descriptor, 2:10, na.rm = TRUE) %>%
   select(-type)
 
-# now create a final column that concatenates all present descriptor text per candy
+# now create a final column that concatenates all candies that share certain descriptors
 
-candy <- aggregate(descriptor ~ competitorname, data = dat_long, paste, collapse = ",")
+candy <- aggregate(competitorname ~ descriptor, data = dat_long, paste, collapse = ",")
 
 # and check
 head(candy)
@@ -124,9 +124,9 @@ OKAY. We can finally get to more fun stuff. I mean, I guess that was fun. But I'
 
 It's hosted on my [github](https://github.com/aczane/biblionetwork):
 
-```{r eval = TRUE, echo = TRUE}
+```{r eval = FALSE, message = F, echo = TRUE}
 
-# install from github
+# install from github (install_packages("devtools") first if necessary)
 devtools::install_github("aczane/biblionetwork")
 
 # load the library
@@ -137,6 +137,7 @@ library(biblionetwork)
 First, we will want to create the nodelist.
 ```{r eval = TRUE, echo = TRUE}
 
+nodes <- make_nodelist(candy, )
 ```
 
 [^1]:[Alexej's post](http://www.alexejgossmann.com/benchmarking_r/) is extremely helpful for benchmarking, btw.
