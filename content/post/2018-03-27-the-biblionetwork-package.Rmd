@@ -31,10 +31,9 @@ blogdown::shortcode('tweet', '960859452244099072')
 
 Happily, I was able to knock the [second one](https://aczane.netlify.com/2018/02/08/the-first-and-namesake-post-is-it-cake/) out back in February, but the first one has taken more work. 
 
-The `biblionetwork` package has three functions, currently. They are (so creatively named, you guys):
+The `biblionetwork` package has just two functions, currently. They are (so creatively named, you guys):
 `make_edgelist` : creates edgelists in dataframe format
 `make_nodelist` : creates nodelists in dataframe format
-`make_groupings`: 
 
 I'm not sure if a package already exists out there that performs these functions, but I couldn't find one when I first started working with co-occurrence lists and networks. I did find a great example from [Francois Briatte](https://www.r-bloggers.com/turning-keywords-into-a-co-occurrence-network/), which I was able to modify for my work. I've since changed the script even further, and benchmarked it to gauge speed: [^1]
 
@@ -80,43 +79,65 @@ The descriptive columns are categorical variables - "1"" indicating "yes," (e.g.
 
 dat_labels <-
   dat %>%
-  mutate(choc_lab = ifelse(chocolate == "1", "chocolate", " "),
-         fruit_lab = ifelse(fruity == "1", "fruity", " "),
-         car_lab = ifelse(caramel == "1", "caramel", " "),
+  mutate(choc_lab = ifelse(chocolate == "1", "chocolate", NA),
+         fruit_lab = ifelse(fruity == "1", "fruity", NA),
+         car_lab = ifelse(caramel == "1", "caramel", NA),
          pea_lab = ifelse(peanutyalmondy == "1",
-                                 "peanutyalmondy", " "),
-         nou_lab = ifelse(nougat == "1", "nougat", " "),
+                                 "peanutyalmondy", NA),
+         nou_lab = ifelse(nougat == "1", "nougat", NA),
          crisp_lab = ifelse(crispedricewafer == "1",
-                                   "crispedricewafer", " "),
-         hard_lab = ifelse(hard == "1", "hard", " "),
-         bar_lab = ifelse(bar == "1", "bar", " "),
-         plu_lab = ifelse(pluribus == "1", "pluribus", " "))
+                                   "crispedricewafer", NA),
+         hard_lab = ifelse(hard == "1", "hard", NA),
+         bar_lab = ifelse(bar == "1", "bar", NA),
+         plu_lab = ifelse(pluribus == "1", "pluribus", NA)) 
 
 # and check
 
 head(dat_labels)
 
 ```
-Now! We're going to make a final column that contains all descriptors of each candy, using `dplyr::unite`.[^2]
+Now! We're going to reshape this. What we ultimately want is a single descriptor column that has concatenated text. Theoretically, we could use `dplyr::unite()`, but it doesn't handle NAs well, so we'll do it a slightly messier way. We'll start with `dplyr::gather()`.
+
+```{r eval = TRUE, message = F, echo = TRUE}
+library(magrittr)
+
+# turn into long format, eliminating rows with NA values
+
+# trim columns from dat_labels
+
+dat_labels %<>%
+  select(-c(2:10))
+
+# turn to long format, removing NA rows
+dat_long <- gather(dat_labels, key = type, value = descriptor, 2:10, na.rm = TRUE) %>%
+  select(-type)
+
+# now create a final column that concatenates all present descriptor text per candy
+
+candy <- aggregate(descriptor ~ competitorname, data = dat_long, paste, collapse = ",")
+
+# and check
+head(candy)
+
+```
+OKAY. We can finally get to more fun stuff. I mean, I guess that was fun. But I'm itching to share my package!
+
+It's hosted on my [github](https://github.com/aczane/biblionetwork):
 
 ```{r eval = TRUE, echo = TRUE}
 
-# create the final dataset, collapsing all text labels into one complete "descriptor"" label
+# install from github
+devtools::install_github("aczane/biblionetwork")
 
-candy <-
-  dat_labels %>%
-  unite(descriptor, 11:19, sep = ",") %>%
-  select(competitorname, descriptor)
+# load the library
+library(biblionetwork)
 
-# and deal with the extra white spaces
-
-candy$descriptor <- 
-  candy$descriptor %>%
-  gsub("\\s[[::punct::]]", "", .)
-
-head(candy)
 ```
 
+First, we will want to create the nodelist.
+```{r eval = TRUE, echo = TRUE}
+
+```
 
 [^1]:[Alexej's post](http://www.alexejgossmann.com/benchmarking_r/) is extremely helpful for benchmarking, btw.
-[^2]: To my knowledge, there isn't a clean way of dealing with NA in `unite` yet, so this is a bit of a messy workaround.
+
