@@ -56,17 +56,17 @@ head(dat)</code></pre>
 
 dat_labels &lt;-
   dat %&gt;%
-  mutate(choc_lab = ifelse(chocolate == &quot;1&quot;, &quot;chocolate&quot;, &quot;&quot;),
-         fruit_lab = ifelse(fruity == &quot;1&quot;, &quot;fruity&quot;, &quot;&quot;),
-         car_lab = ifelse(caramel == &quot;1&quot;, &quot;caramel&quot;, &quot;&quot;),
+  mutate(choc_lab = ifelse(chocolate == &quot;1&quot;, &quot;chocolate&quot;, &quot; &quot;),
+         fruit_lab = ifelse(fruity == &quot;1&quot;, &quot;fruity&quot;, &quot; &quot;),
+         car_lab = ifelse(caramel == &quot;1&quot;, &quot;caramel&quot;, &quot; &quot;),
          pea_lab = ifelse(peanutyalmondy == &quot;1&quot;,
-                                 &quot;peanutyalmondy&quot;, &quot;&quot;),
-         nou_lab = ifelse(nougat == &quot;1&quot;, &quot;nougat&quot;, &quot;&quot;),
+                                 &quot;peanutyalmondy&quot;, &quot; &quot;),
+         nou_lab = ifelse(nougat == &quot;1&quot;, &quot;nougat&quot;, &quot; &quot;),
          crisp_lab = ifelse(crispedricewafer == &quot;1&quot;,
-                                   &quot;crispedricewafer&quot;, &quot;&quot;),
-         hard_lab = ifelse(hard == &quot;1&quot;, &quot;hard&quot;, &quot;&quot;),
-         bar_lab = ifelse(bar == &quot;1&quot;, &quot;bar&quot;, &quot;&quot;),
-         plu_lab = ifelse(pluribus == &quot;1&quot;, &quot;pluribus&quot;, &quot;&quot;))
+                                   &quot;crispedricewafer&quot;, &quot; &quot;),
+         hard_lab = ifelse(hard == &quot;1&quot;, &quot;hard&quot;, &quot; &quot;),
+         bar_lab = ifelse(bar == &quot;1&quot;, &quot;bar&quot;, &quot; &quot;),
+         plu_lab = ifelse(pluribus == &quot;1&quot;, &quot;pluribus&quot;, &quot; &quot;))
 
 # and check
 
@@ -84,27 +84,34 @@ head(dat_labels)</code></pre>
 ## #   bar &lt;int&gt;, pluribus &lt;int&gt;, choc_lab &lt;chr&gt;, fruit_lab &lt;chr&gt;,
 ## #   car_lab &lt;chr&gt;, pea_lab &lt;chr&gt;, nou_lab &lt;chr&gt;, crisp_lab &lt;chr&gt;,
 ## #   hard_lab &lt;chr&gt;, bar_lab &lt;chr&gt;, plu_lab &lt;chr&gt;</code></pre>
-<p>Now! We’re going to make a final column that contains all descriptors of each candy, using <code>dplyr::unite</code>.</p>
+<p>Now! We’re going to make a final column that contains all descriptors of each candy, using <code>dplyr::unite</code>.<a href="#fn2" class="footnoteRef" id="fnref2"><sup>2</sup></a></p>
 <pre class="r"><code># create the final dataset, collapsing all text labels into one complete &quot;descriptor&quot;&quot; label
 
 candy &lt;-
   dat_labels %&gt;%
-  unite(descriptor, 11:19, sep = &quot;&quot;) %&gt;%
+  unite(descriptor, 11:19, sep = &quot;,&quot;) %&gt;%
   select(competitorname, descriptor)
 
-head(candy) </code></pre>
+# and deal with the extra white spaces
+
+candy$descriptor &lt;- 
+  candy$descriptor %&gt;%
+  gsub(&quot;\\s[::punct::]&quot;, &quot;&quot;, .)
+
+head(candy)</code></pre>
 <pre><code>## # A tibble: 6 x 2
-##   competitorname                          descriptor
-##            &lt;chr&gt;                               &lt;chr&gt;
-## 1      100 Grand chocolatecaramelcrispedricewaferbar
-## 2   3 Musketeers                  chocolatenougatbar
-## 3       One dime                                    
-## 4    One quarter                                    
-## 5      Air Heads                              fruity
-## 6     Almond Joy          chocolatepeanutyalmondybar</code></pre>
+##   competitorname                                       descriptor
+##            &lt;chr&gt;                                            &lt;chr&gt;
+## 1      100 Grand chocolate, ,caramel, , ,crispedricewafer, ,bar, 
+## 2   3 Musketeers                 chocolate, , , ,nougat, , ,bar, 
+## 3       One dime                                 , , , , , , , , 
+## 4    One quarter                                 , , , , , , , , 
+## 5      Air Heads                            ,fruity, , , , , , , 
+## 6     Almond Joy         chocolate, , ,peanutyalmondy, , , ,bar,</code></pre>
 <div class="footnotes">
 <hr />
 <ol>
 <li id="fn1"><p><a href="http://www.alexejgossmann.com/benchmarking_r/">Alexej’s post</a> is extremely helpful for benchmarking, btw.<a href="#fnref1">↩</a></p></li>
+<li id="fn2"><p>To my knowledge, there isn’t a clean way of dealing with NA in <code>unite</code> yet, so this is a bit of a messy workaround.<a href="#fnref2">↩</a></p></li>
 </ol>
 </div>

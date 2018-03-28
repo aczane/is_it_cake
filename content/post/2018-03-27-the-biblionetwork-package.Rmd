@@ -80,24 +80,24 @@ The descriptive columns are categorical variables - "1"" indicating "yes," (e.g.
 
 dat_labels <-
   dat %>%
-  mutate(choc_lab = ifelse(chocolate == "1", "chocolate", ""),
-         fruit_lab = ifelse(fruity == "1", "fruity", ""),
-         car_lab = ifelse(caramel == "1", "caramel", ""),
+  mutate(choc_lab = ifelse(chocolate == "1", "chocolate", " "),
+         fruit_lab = ifelse(fruity == "1", "fruity", " "),
+         car_lab = ifelse(caramel == "1", "caramel", " "),
          pea_lab = ifelse(peanutyalmondy == "1",
-                                 "peanutyalmondy", ""),
-         nou_lab = ifelse(nougat == "1", "nougat", ""),
+                                 "peanutyalmondy", " "),
+         nou_lab = ifelse(nougat == "1", "nougat", " "),
          crisp_lab = ifelse(crispedricewafer == "1",
-                                   "crispedricewafer", ""),
-         hard_lab = ifelse(hard == "1", "hard", ""),
-         bar_lab = ifelse(bar == "1", "bar", ""),
-         plu_lab = ifelse(pluribus == "1", "pluribus", ""))
+                                   "crispedricewafer", " "),
+         hard_lab = ifelse(hard == "1", "hard", " "),
+         bar_lab = ifelse(bar == "1", "bar", " "),
+         plu_lab = ifelse(pluribus == "1", "pluribus", " "))
 
 # and check
 
 head(dat_labels)
 
 ```
-Now! We're going to make a final column that contains all descriptors of each candy, using `dplyr::unite`.
+Now! We're going to make a final column that contains all descriptors of each candy, using `dplyr::unite`.[^2]
 
 ```{r eval = TRUE, echo = TRUE}
 
@@ -105,11 +105,18 @@ Now! We're going to make a final column that contains all descriptors of each ca
 
 candy <-
   dat_labels %>%
-  unite(descriptor, 11:19, sep = "") %>%
+  unite(descriptor, 11:19, sep = ",") %>%
   select(competitorname, descriptor)
 
-head(candy) 
+# and deal with the extra white spaces
+
+candy$descriptor <- 
+  candy$descriptor %>%
+  gsub("\\s[[::punct::]]", "", .)
+
+head(candy)
 ```
 
 
 [^1]:[Alexej's post](http://www.alexejgossmann.com/benchmarking_r/) is extremely helpful for benchmarking, btw.
+[^2]: To my knowledge, there isn't a clean way of dealing with NA in `unite` yet, so this is a bit of a messy workaround.
