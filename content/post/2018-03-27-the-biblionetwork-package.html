@@ -1,5 +1,5 @@
 ---
-title: The “biblionetwork” package
+title: The “biblionetwork” package - What's Your Flavor?
 author: Ariel Zane
 date: '2018-03-27'
 slug: the-biblionetwork-package
@@ -26,7 +26,7 @@ draft: TRUE
 <p>The <code>biblionetwork</code> package has just two functions, currently. They are (so creatively named, you guys): <code>make_edgelist</code> : creates edgelists in dataframe format <code>make_nodelist</code> : creates nodelists in dataframe format</p>
 <p>I’m not sure if a package already exists out there that performs these functions, but I couldn’t find one when I first started working with co-occurrence lists and networks. I did find a great example from <a href="https://www.r-bloggers.com/turning-keywords-into-a-co-occurrence-network/">Francois Briatte</a>, which I was able to modify for my work. I’ve since changed the script even further, and benchmarked it to gauge speed: <a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a></p>
 {{% tweet "973903870366814209" %}}
-<p>Mind you, it’s still not very fast (especially for very large networks, ~10K nodes and &gt;= 10^6 edges). But it works!</p>
+<p>Mind you, it’s still not very fast (especially for very large networks, ~10<sup>4</sup> nodes and &gt;= 10<sup>6</sup> edges). But it works!</p>
 <p>I’m going to walk through it with the “Candy” dataset from <a href="https://data.fivethirtyeight.com">FiveThirtyEight</a>. This is a dataset of candy types, with a bunch of variables describing the candies; the full description of the data can be found <a href="https://github.com/fivethirtyeight/data/tree/master/candy-power-ranking">here</a>. We’re going to rework it a little bit and create a network graph of the candies; candy with similar traits should be closer to each other and linked. I’m only interested in part of the dataset (not the percentages at the end), so I’ll just select those columns.</p>
 <pre class="r"><code>library(tidyverse)
 
@@ -40,7 +40,7 @@ dat &lt;- read_csv(&quot;candy-data.csv&quot;) %&gt;%
 # check it out
 
 head(dat)</code></pre>
-<pre><code>## # A tibble: 6 x 10
+<pre><code>## # A tibble: 6 x 13
 ##   competitorname chocolate fruity caramel peanutyalmondy nougat
 ##   &lt;chr&gt;              &lt;int&gt;  &lt;int&gt;   &lt;int&gt;          &lt;int&gt;  &lt;int&gt;
 ## 1 100 Grand              1      0       1              0      0
@@ -49,8 +49,19 @@ head(dat)</code></pre>
 ## 4 One quarter            0      0       0              0      0
 ## 5 Air Heads              0      1       0              0      0
 ## 6 Almond Joy             1      0       0              1      0
-## # ... with 4 more variables: crispedricewafer &lt;int&gt;, hard &lt;int&gt;,
-## #   bar &lt;int&gt;, pluribus &lt;int&gt;</code></pre>
+## # ... with 7 more variables: crispedricewafer &lt;int&gt;, hard &lt;int&gt;,
+## #   bar &lt;int&gt;, pluribus &lt;int&gt;, sugarpercent &lt;dbl&gt;, pricepercent &lt;dbl&gt;,
+## #   winpercent &lt;dbl&gt;</code></pre>
+<pre class="r"><code># Let&#39;s also remove the &quot;one dime&quot; and &quot;one quarter&quot; entries, because...that&#39;s not food. (They discuss this in the article.)
+
+library(magrittr)
+
+dat %&lt;&gt;%
+  filter(!competitorname %in% c(&quot;One dime&quot;, &quot;One quarter&quot;))
+
+# how many distinct candies are there?
+n_distinct(dat$competitorname)</code></pre>
+<pre><code>## [1] 83</code></pre>
 <p>The descriptive columns are categorical variables - “1”&quot; indicating “yes,” (e.g., a “1” in “chocolate” means it is chocolate or contains chocolate), and “0” for “no.” We’re going to change this coding a little bit and create text instead. There is probably a more elegant way of doing this, but messing with extracting and looping over colnames is something I don’t want to touch with a long stick, so…</p>
 <pre class="r"><code># create new columns with text instead of binary coding
 
@@ -71,57 +82,159 @@ dat_labels &lt;-
 # and check
 
 head(dat_labels)</code></pre>
-<pre><code>## # A tibble: 6 x 19
-##   competitorname chocolate fruity caramel peanutyalmondy nougat
-##   &lt;chr&gt;              &lt;int&gt;  &lt;int&gt;   &lt;int&gt;          &lt;int&gt;  &lt;int&gt;
-## 1 100 Grand              1      0       1              0      0
-## 2 3 Musketeers           1      0       0              0      1
-## 3 One dime               0      0       0              0      0
-## 4 One quarter            0      0       0              0      0
-## 5 Air Heads              0      1       0              0      0
-## 6 Almond Joy             1      0       0              1      0
-## # ... with 13 more variables: crispedricewafer &lt;int&gt;, hard &lt;int&gt;,
-## #   bar &lt;int&gt;, pluribus &lt;int&gt;, choc_lab &lt;chr&gt;, fruit_lab &lt;chr&gt;,
-## #   car_lab &lt;chr&gt;, pea_lab &lt;chr&gt;, nou_lab &lt;chr&gt;, crisp_lab &lt;chr&gt;,
-## #   hard_lab &lt;chr&gt;, bar_lab &lt;chr&gt;, plu_lab &lt;chr&gt;</code></pre>
+<pre><code>## # A tibble: 6 x 22
+##   competitorname     chocolate fruity caramel peanutyalmondy nougat
+##   &lt;chr&gt;                  &lt;int&gt;  &lt;int&gt;   &lt;int&gt;          &lt;int&gt;  &lt;int&gt;
+## 1 100 Grand                  1      0       1              0      0
+## 2 3 Musketeers               1      0       0              0      1
+## 3 Air Heads                  0      1       0              0      0
+## 4 Almond Joy                 1      0       0              1      0
+## 5 Baby Ruth                  1      0       1              1      1
+## 6 Boston Baked Beans         0      0       0              1      0
+## # ... with 16 more variables: crispedricewafer &lt;int&gt;, hard &lt;int&gt;,
+## #   bar &lt;int&gt;, pluribus &lt;int&gt;, sugarpercent &lt;dbl&gt;, pricepercent &lt;dbl&gt;,
+## #   winpercent &lt;dbl&gt;, choc_lab &lt;chr&gt;, fruit_lab &lt;chr&gt;, car_lab &lt;chr&gt;,
+## #   pea_lab &lt;chr&gt;, nou_lab &lt;chr&gt;, crisp_lab &lt;chr&gt;, hard_lab &lt;chr&gt;,
+## #   bar_lab &lt;chr&gt;, plu_lab &lt;chr&gt;</code></pre>
 <p>Now! We’re going to reshape this. What we ultimately want is a single descriptor column that has concatenated text. Theoretically, we could use <code>dplyr::unite()</code>, but it doesn’t handle NAs well, so we’ll do it a slightly messier way. We’ll start with <code>dplyr::gather()</code>.</p>
-<pre class="r"><code>library(magrittr)
-
-# turn into long format, eliminating rows with NA values
-
-# trim columns from dat_labels
+<pre class="r"><code># trim columns from dat_labels
 
 dat_labels %&lt;&gt;%
-  select(-c(2:10))
+  select(-c(2:13))
 
 # turn to long format, removing NA rows
 dat_long &lt;- gather(dat_labels, key = type, value = descriptor, 2:10, na.rm = TRUE) %&gt;%
   select(-type)
 
-# now create a final column that concatenates all present descriptor text per candy
+# now create a final column that concatenates all candies that share certain descriptors
 
-candy &lt;- aggregate(descriptor ~ competitorname, data = dat_long, paste, collapse = &quot;,&quot;)
+candy &lt;- aggregate(competitorname ~ descriptor, data = dat_long, paste, collapse = &quot;,&quot;)
 
 # and check
 head(candy)</code></pre>
-<pre><code>##       competitorname                                  descriptor
-## 1          100 Grand      chocolate,caramel,crispedricewafer,bar
-## 2       3 Musketeers                        chocolate,nougat,bar
-## 3          Air Heads                                      fruity
-## 4         Almond Joy                chocolate,peanutyalmondy,bar
-## 5          Baby Ruth chocolate,caramel,peanutyalmondy,nougat,bar
-## 6 Boston Baked Beans                     peanutyalmondy,pluribus</code></pre>
-<p>OKAY. We can finally get to more fun stuff. I mean, I guess that was fun. But I’m itching to share my package!</p>
+<pre><code>##         descriptor
+## 1              bar
+## 2          caramel
+## 3        chocolate
+## 4 crispedricewafer
+## 5           fruity
+## 6             hard
+##                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              competitorname
+## 1                                                                                                                                                                                                                                                            100 Grand,3 Musketeers,Almond Joy,Baby Ruth,Charleston Chew,HersheyÕs Krackel,HersheyÕs Milk Chocolate,HersheyÕs Special Dark,Kit Kat,Milky Way,Milky Way Midnight,Milky Way Simply Caramel,Mounds,Mr Good Bar,Nestle Butterfinger,Nestle Crunch,Payday,Snickers,Snickers Crisper,Tootsie Roll Snack Bars,Twix
+## 2                                                                                                                                                                                                                                                                                                                                                                            100 Grand,Baby Ruth,Caramel Apple Pops,Milk Duds,Milky Way,Milky Way Midnight,Milky Way Simply Caramel,Rolo,Snickers,Snickers Crisper,Sugar Babies,Sugar Daddy,Twix,WertherÕs Original Caramel
+## 3 100 Grand,3 Musketeers,Almond Joy,Baby Ruth,Charleston Chew,HersheyÕs Kisses,HersheyÕs Krackel,HersheyÕs Milk Chocolate,HersheyÕs Special Dark,Junior Mints,Kit Kat,Peanut butter M&amp;MÕs,M&amp;MÕs,Milk Duds,Milky Way,Milky Way Midnight,Milky Way Simply Caramel,Mounds,Mr Good Bar,Nestle Butterfinger,Nestle Crunch,Peanut M&amp;Ms,ReeseÕs Miniatures,ReeseÕs Peanut Butter cup,ReeseÕs pieces,ReeseÕs stuffed with pieces,Rolo,Sixlets,Nestle Smarties,Snickers,Snickers Crisper,Tootsie Pop,Tootsie Roll Juniors,Tootsie Roll Midgies,Tootsie Roll Snack Bars,Twix,Whoppers
+## 4                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          100 Grand,HersheyÕs Krackel,Kit Kat,Nestle Crunch,Snickers Crisper,Twix,Whoppers
+## 5                                       Air Heads,Caramel Apple Pops,Chewey Lemonhead Fruit Mix,Chiclets,Dots,Dum Dums,Fruit Chews,Fun Dip,Gobstopper,Haribo Gold Bears,Haribo Sour Bears,Haribo Twin Snakes,Jawbusters,Laffy Taffy,Lemonhead,Lifesavers big ring gummies,Mike &amp; Ike,Nerds,Nik L Nip,Now &amp; Later,Pop Rocks,Red vines,Ring pop,Runts,Skittles original,Skittles wildberry,Smarties candy,Sour Patch Kids,Sour Patch Tricksters,Starburst,Strawberry bon bons,Super Bubble,Swedish Fish,Tootsie Pop,Trolli Sour Bites,Twizzlers,Warheads,WelchÕs Fruit Snacks
+## 6                                                                                                                                                                                                                                                                                                                                                                                      Dum Dums,Fun Dip,Gobstopper,Jawbusters,Lemonhead,Nerds,Pop Rocks,Ring pop,Root Beer Barrels,Runts,Smarties candy,Strawberry bon bons,Tootsie Pop,Warheads,WertherÕs Original Caramel</code></pre>
+<p>OKAY. We now have a dataframe that shows, for every candy descriptor, the full list of candies that have that characteristic. E.g., for “chocolate,” it shows: “100 Grand, 3 Musketeers, Almond Joy, Baby Ruth, Charleston Chew (wut?), Hershey’s Krackel, Hershey’s Milk Chocolate,” and so on.</p>
+<p>Now we can finally get to more fun stuff. I mean, I guess that was fun. But I’m itching to share my “biblionetwork” package!</p>
 <p>It’s hosted on my <a href="https://github.com/aczane/biblionetwork">github</a>:</p>
+<p>Install from github and load the package.</p>
 <pre class="r"><code># install from github (install_packages(&quot;devtools&quot;) first if necessary)
 devtools::install_github(&quot;aczane/biblionetwork&quot;)
 
 # load the library
 library(biblionetwork)</code></pre>
-<p>First, we will want to create the nodelist.</p>
+<p>As I mentioned above, it has two functions: <code>make_nodelist</code>, and <code>make_edgelist</code>. First, we will want to create the nodelist.</p>
+<pre class="r"><code># create the list of nodes - this is essentially the list of candies, one per row, in a tidy way.
+nodes &lt;- make_nodelist(candy, competitorname, sep = &quot;,&quot;)
+
+head(nodes)</code></pre>
+<pre><code>##       competitorname
+## 1          100 Grand
+## 2       3 Musketeers
+## 3          Air Heads
+## 4         Almond Joy
+## 5          Baby Ruth
+## 6 Boston Baked Beans</code></pre>
+<pre class="r"><code># and now make the edgelist. This connects nodes that share candy types. This is an undirected network, so edge pairs (i,j) and (j,i) are equivalent. 
+
+edges &lt;- make_edgelist(candy, competitorname, sep = &quot;,&quot;)
+
+head(edges)</code></pre>
+<pre><code>## # A tibble: 6 x 3
+##   X1        X2                 weight
+##   &lt;chr&gt;     &lt;chr&gt;               &lt;dbl&gt;
+## 1 100 Grand 3 Musketeers           2.
+## 2 100 Grand Almond Joy             2.
+## 3 100 Grand Baby Ruth              3.
+## 4 100 Grand Caramel Apple Pops     1.
+## 5 100 Grand Charleston Chew        2.
+## 6 100 Grand HersheyÕs Kisses       1.</code></pre>
+<p>And now, the network graph! We’ll try out <a href="https://www.data-imaginist.com/2017/introducing-tidygraph/"><code>tidygraph</code></a> and <a href="https://github.com/thomasp85/ggraph"><code>ggraph</code></a>.<a href="#fn2" class="footnoteRef" id="fnref2"><sup>2</sup></a></p>
+<pre class="r"><code>install.packages(&quot;tidygraph&quot;)
+install.packages(&quot;thomasp85/ggraph&quot;)
+
+library(tidygraph)
+library(ggraph)</code></pre>
+<pre><code>## 
+## Attaching package: &#39;tidygraph&#39;</code></pre>
+<pre><code>## The following object is masked from &#39;package:stats&#39;:
+## 
+##     filter</code></pre>
+<p>We’ll want one of the original data columns as a node attribute: <a href="http://walthickey.com/2017/10/18/whats-the-best-halloween-candy/">winpercent</a>.</p>
+<pre class="r"><code>cg &lt;- tbl_graph(edges = edges, nodes = nodes, directed = FALSE)
+
+summary(cg)</code></pre>
+<pre><code>## IGRAPH c1fac49 U-W- 83 2024 -- 
+## + attr: competitorname (v/c), weight (e/n)</code></pre>
+<pre class="r"><code>cg</code></pre>
+<pre><code>## # A tbl_graph: 83 nodes and 2024 edges
+## #
+## # An undirected simple graph with 1 component
+## #
+## # Node Data: 83 x 1 (active)
+##   competitorname    
+##   &lt;chr&gt;             
+## 1 100 Grand         
+## 2 3 Musketeers      
+## 3 Air Heads         
+## 4 Almond Joy        
+## 5 Baby Ruth         
+## 6 Boston Baked Beans
+## # ... with 77 more rows
+## #
+## # Edge Data: 2,024 x 3
+##    from    to weight
+##   &lt;int&gt; &lt;int&gt;  &lt;dbl&gt;
+## 1     1     2     2.
+## 2     1     4     2.
+## 3     1     5     3.
+## # ... with 2,021 more rows</code></pre>
+<pre class="r"><code># add node attribute
+
+cg &lt;- 
+  cg %&gt;% 
+  activate(nodes) %&gt;%
+  mutate(winpercent = dat$winpercent)
+
+cg</code></pre>
+<pre><code>## # A tbl_graph: 83 nodes and 2024 edges
+## #
+## # An undirected simple graph with 1 component
+## #
+## # Node Data: 83 x 2 (active)
+##   competitorname     winpercent
+##   &lt;chr&gt;                   &lt;dbl&gt;
+## 1 100 Grand                67.0
+## 2 3 Musketeers             67.6
+## 3 Air Heads                52.3
+## 4 Almond Joy               50.3
+## 5 Baby Ruth                56.9
+## 6 Boston Baked Beans       23.4
+## # ... with 77 more rows
+## #
+## # Edge Data: 2,024 x 3
+##    from    to weight
+##   &lt;int&gt; &lt;int&gt;  &lt;dbl&gt;
+## 1     1     2     2.
+## 2     1     4     2.
+## 3     1     5     3.
+## # ... with 2,021 more rows</code></pre>
 <div class="footnotes">
 <hr />
 <ol>
 <li id="fn1"><p><a href="http://www.alexejgossmann.com/benchmarking_r/">Alexej’s post</a> is extremely helpful for benchmarking, btw.<a href="#fnref1">↩</a></p></li>
+<li id="fn2"><p>For really large networks (10<sup>4</sup> nodes and 10<sup>7</sup>/<sup>+</sup> edges), I find <a href="https://briatte.github.io/ggnetwork/"><code>ggnetwork</code></a> to work a little better…I’ve gotten the bomb of doom a little too often with tidygraph and ggraph on very large datasets. I’m not sure why this is. I will confess that I haven’t put too much time into it as I have lots of working code written for ggnetwork.<a href="#fnref2">↩</a></p></li>
 </ol>
 </div>

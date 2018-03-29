@@ -1,5 +1,5 @@
 ---
-title: The “biblionetwork” package
+title: The “biblionetwork” package - What's Your Flavor?
 author: Ariel Zane
 date: '2018-03-27'
 slug: the-biblionetwork-package
@@ -41,7 +41,7 @@ I'm not sure if a package already exists out there that performs these functions
 blogdown::shortcode('tweet', '973903870366814209')
 ```
 
-Mind you, it's still not very fast (especially for very large networks, ~10K nodes and >= 10^6 edges). But it works!
+Mind you, it's still not very fast (especially for very large networks, ~10^4^ nodes and >= 10^6^ edges). But it works!
 
 I'm going to walk through it with the "Candy" dataset from [FiveThirtyEight](https://data.fivethirtyeight.com). This is a dataset of candy types, with a bunch of variables describing the candies; the full description of the data can be found [here](https://github.com/fivethirtyeight/data/tree/master/candy-power-ranking). We're going to rework it a little bit and create a network graph of the candies; candy with similar traits should be closer to each other and linked. I'm only interested in part of the dataset (not the percentages at the end), so I'll just select those columns.
 
@@ -63,14 +63,24 @@ head(dat)
 ```{r eval = TRUE, message = F, echo = FALSE}
 library(tidyverse)
 
-dat <- read_csv("https://raw.githubusercontent.com/fivethirtyeight/data/master/candy-power-ranking/candy-data.csv") %>%
-  select(competitorname, chocolate,	fruity,	caramel,
-         peanutyalmondy, nougat, crispedricewafer, hard, bar,
-         pluribus)
+dat <- read_csv("https://raw.githubusercontent.com/fivethirtyeight/data/master/candy-power-ranking/candy-data.csv") 
 
 head(dat)
-
 ```
+
+```{r eval = TRUE, message = FALSE, echo = TRUE}
+
+# Let's also remove the "one dime" and "one quarter" entries, because...that's not food. (They discuss this in the article.)
+
+library(magrittr)
+
+dat %<>%
+  filter(!competitorname %in% c("One dime", "One quarter"))
+
+# how many distinct candies are there?
+n_distinct(dat$competitorname)
+```
+
 The descriptive columns are categorical variables - "1"" indicating "yes," (e.g., a "1" in "chocolate" means it is chocolate or contains chocolate), and "0" for "no." We're going to change this coding a little bit and create text instead. There is probably a more elegant way of doing this, but messing with extracting and looping over colnames is something I don't want to touch with a long stick, so...
 
 ```{r eval = TRUE, echo = TRUE}
@@ -99,14 +109,10 @@ head(dat_labels)
 Now! We're going to reshape this. What we ultimately want is a single descriptor column that has concatenated text. Theoretically, we could use `dplyr::unite()`, but it doesn't handle NAs well, so we'll do it a slightly messier way. We'll start with `dplyr::gather()`.
 
 ```{r eval = TRUE, message = F, echo = TRUE}
-library(magrittr)
-
-# turn into long format, eliminating rows with NA values
-
 # trim columns from dat_labels
 
 dat_labels %<>%
-  select(-c(2:10))
+  select(-c(2:13))
 
 # turn to long format, removing NA rows
 dat_long <- gather(dat_labels, key = type, value = descriptor, 2:10, na.rm = TRUE) %>%
@@ -120,10 +126,13 @@ candy <- aggregate(competitorname ~ descriptor, data = dat_long, paste, collapse
 head(candy)
 
 ```
-OKAY. We can finally get to more fun stuff. I mean, I guess that was fun. But I'm itching to share my package!
+OKAY. We now have a dataframe that shows, for every candy descriptor, the full list of candies that have that characteristic. E.g., for "chocolate," it shows: "100 Grand, 3 Musketeers, Almond Joy, Baby Ruth, Charleston Chew (wut?), Hershey's Krackel, Hershey's Milk Chocolate," and so on. 
+
+Now we can finally get to more fun stuff. I mean, I guess that was fun. But I'm itching to share my "biblionetwork" package!
 
 It's hosted on my [github](https://github.com/aczane/biblionetwork):
 
+Install from github and load the package.
 ```{r eval = FALSE, message = F, echo = TRUE}
 
 # install from github (install_packages("devtools") first if necessary)
@@ -134,11 +143,59 @@ library(biblionetwork)
 
 ```
 
+```{r eval = TRUE, echo = FALSE}
+library(biblionetwork)
+```
+
+As I mentioned above, it has two functions: `make_nodelist`, and `make_edgelist`.
 First, we will want to create the nodelist.
 ```{r eval = TRUE, echo = TRUE}
 
-nodes <- make_nodelist(candy, )
+# create the list of nodes - this is essentially the list of candies, one per row, in a tidy way.
+nodes <- make_nodelist(candy, competitorname, sep = ",")
+
+head(nodes)
+
+# and now make the edgelist. This connects nodes that share candy types. This is an undirected network, so edge pairs (i,j) and (j,i) are equivalent. 
+
+edges <- make_edgelist(candy, competitorname, sep = ",")
+
+head(edges)
+```
+
+And now, the network graph! We'll try out [`tidygraph`](https://www.data-imaginist.com/2017/introducing-tidygraph/) and [`ggraph`](https://github.com/thomasp85/ggraph).[^2]
+
+```{r eval = FALSE, echo = TRUE}
+install.packages("tidygraph")
+install.packages("thomasp85/ggraph")
+
+library(tidygraph)
+library(ggraph)
+```
+
+```{r eval = TRUE, echo = FALSE}
+library(tidygraph)
+library(ggraph)
+```
+
+We'll want one of the original data columns as a node attribute: [winpercent](http://walthickey.com/2017/10/18/whats-the-best-halloween-candy/). 
+```{r eval = TRUE, echo = TRUE}
+
+cg <- tbl_graph(edges = edges, nodes = nodes, directed = FALSE)
+
+summary(cg)
+
+cg
+
+# add node attribute
+
+cg <- 
+  cg %>% 
+  activate(nodes) %>%
+  mutate(winpercent = dat$winpercent)
+
+cg
 ```
 
 [^1]:[Alexej's post](http://www.alexejgossmann.com/benchmarking_r/) is extremely helpful for benchmarking, btw.
-
+[^2]: For really large networks (10^4^ nodes and 10^7^/^+^ edges), I find [`ggnetwork`](https://briatte.github.io/ggnetwork/) to work a little better...I've gotten the bomb of doom a little too often with tidygraph and ggraph on very large datasets. I'm not sure why this is. I will confess that I haven't put too much time into it as I have lots of working code written for ggnetwork.
