@@ -23,7 +23,7 @@ options(htmltools.dir.version = FALSE)
 knitr::opts_chunk$set(tidy = FALSE, eval = FALSE)
 ```
 
-After the high of rstudio::conf 2017, I made a (tiny) list of R-related goals for myself:
+After the high of rstudio::conf 2018, I made a (tiny) list of R-related goals for myself:
 
 ```{r echo = FALSE, eval = TRUE}
 blogdown::shortcode('tweet', '960859452244099072')
@@ -43,17 +43,14 @@ blogdown::shortcode('tweet', '973903870366814209')
 
 Mind you, it's still not very fast (especially for very large networks, ~10^4^ nodes and >= 10^6^ edges). But it works!
 
-I'm going to walk through it with the "Candy" dataset from [FiveThirtyEight](https://data.fivethirtyeight.com). This is a dataset of candy types, with a bunch of variables describing the candies; the full description of the data can be found [here](https://github.com/fivethirtyeight/data/tree/master/candy-power-ranking). We're going to rework it a little bit and create a network graph of the candies; candy with similar traits should be closer to each other and linked. I'm only interested in part of the dataset (not the percentages at the end), so I'll just select those columns.
+I'm going to walk through it with the "Candy" dataset from [FiveThirtyEight](https://data.fivethirtyeight.com). This is a dataset of candy types, with a bunch of variables describing the candies, like "chocolate," "fruity," and so on; the full description of the data can be found [here](https://github.com/fivethirtyeight/data/tree/master/candy-power-ranking). We're going to rework it a little bit and create a network graph of the candies; candy with similar traits should be closer to each other and linked. 
 
 ```{r eval = FALSE, echo = TRUE}
 library(tidyverse)
 
 # load the data and select the desired columns
 
-dat <- read_csv("candy-data.csv") %>%
-  select(competitorname, chocolate,	fruity,	caramel,
-         peanutyalmondy, nougat, crispedricewafer, hard, bar,
-         pluribus)
+dat <- read_csv("candy-data.csv") 
 
 # check it out
 
@@ -122,10 +119,15 @@ dat_long <- gather(dat_labels, key = type, value = descriptor, 2:10, na.rm = TRU
 
 candy <- aggregate(competitorname ~ descriptor, data = dat_long, paste, collapse = ",")
 
-# and check
-head(candy)
-
 ```
+
+```{r eval = TRUE, echo = FALSE, message = FALSE}
+library(kableExtra)
+
+knitr::kable(head(candy), format = 'html') %>%
+  kable_styling(full_width = F, font_size = 8)
+```
+
 OKAY. We now have a dataframe that shows, for every candy descriptor, the full list of candies that have that characteristic. E.g., for "chocolate," it shows: "100 Grand, 3 Musketeers, Almond Joy, Baby Ruth, Charleston Chew (wut?), Hershey's Krackel, Hershey's Milk Chocolate," and so on. 
 
 Now we can finally get to more fun stuff. I mean, I guess that was fun. But I'm itching to share my "biblionetwork" package!
@@ -178,24 +180,67 @@ library(tidygraph)
 library(ggraph)
 ```
 
-We'll want one of the original data columns as a node attribute: [winpercent](http://walthickey.com/2017/10/18/whats-the-best-halloween-candy/). 
+We'll want one of the original data columns as a node attribute: [winpercent](http://walthickey.com/2017/10/18/whats-the-best-halloween-candy/). We also want to make a new attribute, which I'll just call "complexity:" a scale indicating how many of the descriptors each candy has. That is, if it's "chocolate" and "peanutyalmondy" and "nougat" (like "Baby Ruth" or "Snickers", it will have complexity >= 3 (in this case, both are also "caramel", so it'd be "4."))
 ```{r eval = TRUE, echo = TRUE}
+# sum the first six columns of the original dataset: chocolate, fruity, caramel, peanutyalmondy, nougat, crispedricewafer. What is the range?
 
+dat %<>%
+  mutate(complexity = chocolate + fruity + caramel + peanutyalmondy + nougat + crispedricewafer)
+
+range(dat$complexity)
+
+# join the attributes to the nodes df
+nodes <-
+  nodes %>%
+  left_join(dat[,c(1,13,14)], by = "competitorname")
+
+# now create the graph object
 cg <- tbl_graph(edges = edges, nodes = nodes, directed = FALSE)
 
 summary(cg)
 
 cg
 
-# add node attribute
-
-cg <- 
-  cg %>% 
-  activate(nodes) %>%
-  mutate(winpercent = dat$winpercent)
-
-cg
 ```
+So now we have a graph object that has nodes, node attributes (winpercent and complexity), and edges, with edge weights.
+
+So let's plot this!
+
+```{r eval = TRUE, echo = TRUE}
+# and let's plot
+
+# color scheme 
+cols <- c("dodgerblue1", "tomato1", "goldenrod1", "springgreen1", "purple")
+
+# now the ggraph
+ggraph(cg, layout = 'fr') + 
+  geom_edge_fan(aes(alpha = weight), edge_colour = "gray54",
+                show.legend = FALSE) +
+  geom_node_point(aes(size = winpercent, alpha = winpercent, 
+                      color = as.factor(complexity))) +
+  labs(title = "Candy Network by Complexity and Win %") +
+  geom_node_text(aes(label = competitorname), size = 2.5, 
+                 colour = 'black', repel = TRUE, 
+                 check_overlap = TRUE) +
+  scale_alpha_continuous(range = c(0.1, 0.9), name = "Win %") +
+  scale_size_continuous(range = c(1,10), name = "Win %") +
+  scale_color_manual(name = "Candy Complexity", values = cols) +
+  theme_void()
+```
+And this is pretty much what you would expect! Similar candies are connected by edges.
+
+The chocolate candy bars are all together, interconnected. Midway through you get chocolate pluribus candies like M&Ms, and then you get into fruitier candies on the other side, which all tend to be pluribus (and erm, where my heart lies). You also see that the fruity candies tend not to be so complex (at least on this scale), but people still like them, whereas the more popular chocolate candies tend to rate higher in complexity.
+
+And finally, your reminder that you can't always trust a simple graph. I love Haribo Happy Cola. But what is it next to?
+
+![](/img/happycola.png)
+CANDY CORN?? THE HORROR.
+
+Anyway, there it is! Let me know if you try out the package and find it helpful, or lacking, or anything at all! For more handy network resources, check out:
+
+1. [Katya Ognyanova's website](http://kateto.net/network-visualization)
+2. Francois Briatte's [curated list of network resources](https://github.com/briatte/awesome-network-analysis)
+3. Colin Fay's [Gentle Introduction to Network] Visualization(https://github.com/ColinFay/conf/blob/master/2017-11-budapest/fay_colin_visualise_network.pdf)
 
 [^1]:[Alexej's post](http://www.alexejgossmann.com/benchmarking_r/) is extremely helpful for benchmarking, btw.
-[^2]: For really large networks (10^4^ nodes and 10^7^/^+^ edges), I find [`ggnetwork`](https://briatte.github.io/ggnetwork/) to work a little better...I've gotten the bomb of doom a little too often with tidygraph and ggraph on very large datasets. I'm not sure why this is. I will confess that I haven't put too much time into it as I have lots of working code written for ggnetwork.
+[^2]: For really large networks (10^4^ nodes and >=10^7^ edges), I find [`ggnetwork`](https://briatte.github.io/ggnetwork/) to work a little better, though it requires more tweaking...I've gotten the bomb of doom a little too often with tidygraph and ggraph on very large datasets. I'm not sure why this is. I will confess that I haven't put too much time into it as I have lots of working code written for ggnetwork.

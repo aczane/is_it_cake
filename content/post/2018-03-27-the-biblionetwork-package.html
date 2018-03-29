@@ -20,22 +20,19 @@ draft: TRUE
 
 
 
-<p>After the high of rstudio::conf 2017, I made a (tiny) list of R-related goals for myself:</p>
+<p>After the high of rstudio::conf 2018, I made a (tiny) list of R-related goals for myself:</p>
 {{% tweet "960859452244099072" %}}
 <p>Happily, I was able to knock the <a href="https://aczane.netlify.com/2018/02/08/the-first-and-namesake-post-is-it-cake/">second one</a> out back in February, but the first one has taken more work.</p>
 <p>The <code>biblionetwork</code> package has just two functions, currently. They are (so creatively named, you guys): <code>make_edgelist</code> : creates edgelists in dataframe format <code>make_nodelist</code> : creates nodelists in dataframe format</p>
 <p>I’m not sure if a package already exists out there that performs these functions, but I couldn’t find one when I first started working with co-occurrence lists and networks. I did find a great example from <a href="https://www.r-bloggers.com/turning-keywords-into-a-co-occurrence-network/">Francois Briatte</a>, which I was able to modify for my work. I’ve since changed the script even further, and benchmarked it to gauge speed: <a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a></p>
 {{% tweet "973903870366814209" %}}
 <p>Mind you, it’s still not very fast (especially for very large networks, ~10<sup>4</sup> nodes and &gt;= 10<sup>6</sup> edges). But it works!</p>
-<p>I’m going to walk through it with the “Candy” dataset from <a href="https://data.fivethirtyeight.com">FiveThirtyEight</a>. This is a dataset of candy types, with a bunch of variables describing the candies; the full description of the data can be found <a href="https://github.com/fivethirtyeight/data/tree/master/candy-power-ranking">here</a>. We’re going to rework it a little bit and create a network graph of the candies; candy with similar traits should be closer to each other and linked. I’m only interested in part of the dataset (not the percentages at the end), so I’ll just select those columns.</p>
+<p>I’m going to walk through it with the “Candy” dataset from <a href="https://data.fivethirtyeight.com">FiveThirtyEight</a>. This is a dataset of candy types, with a bunch of variables describing the candies, like “chocolate,” “fruity,” and so on; the full description of the data can be found <a href="https://github.com/fivethirtyeight/data/tree/master/candy-power-ranking">here</a>. We’re going to rework it a little bit and create a network graph of the candies; candy with similar traits should be closer to each other and linked.</p>
 <pre class="r"><code>library(tidyverse)
 
 # load the data and select the desired columns
 
-dat &lt;- read_csv(&quot;candy-data.csv&quot;) %&gt;%
-  select(competitorname, chocolate, fruity, caramel,
-         peanutyalmondy, nougat, crispedricewafer, hard, bar,
-         pluribus)
+dat &lt;- read_csv(&quot;candy-data.csv&quot;) 
 
 # check it out
 
@@ -108,24 +105,69 @@ dat_long &lt;- gather(dat_labels, key = type, value = descriptor, 2:10, na.rm = 
 
 # now create a final column that concatenates all candies that share certain descriptors
 
-candy &lt;- aggregate(competitorname ~ descriptor, data = dat_long, paste, collapse = &quot;,&quot;)
-
-# and check
-head(candy)</code></pre>
-<pre><code>##         descriptor
-## 1              bar
-## 2          caramel
-## 3        chocolate
-## 4 crispedricewafer
-## 5           fruity
-## 6             hard
-##                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              competitorname
-## 1                                                                                                                                                                                                                                                            100 Grand,3 Musketeers,Almond Joy,Baby Ruth,Charleston Chew,HersheyÕs Krackel,HersheyÕs Milk Chocolate,HersheyÕs Special Dark,Kit Kat,Milky Way,Milky Way Midnight,Milky Way Simply Caramel,Mounds,Mr Good Bar,Nestle Butterfinger,Nestle Crunch,Payday,Snickers,Snickers Crisper,Tootsie Roll Snack Bars,Twix
-## 2                                                                                                                                                                                                                                                                                                                                                                            100 Grand,Baby Ruth,Caramel Apple Pops,Milk Duds,Milky Way,Milky Way Midnight,Milky Way Simply Caramel,Rolo,Snickers,Snickers Crisper,Sugar Babies,Sugar Daddy,Twix,WertherÕs Original Caramel
-## 3 100 Grand,3 Musketeers,Almond Joy,Baby Ruth,Charleston Chew,HersheyÕs Kisses,HersheyÕs Krackel,HersheyÕs Milk Chocolate,HersheyÕs Special Dark,Junior Mints,Kit Kat,Peanut butter M&amp;MÕs,M&amp;MÕs,Milk Duds,Milky Way,Milky Way Midnight,Milky Way Simply Caramel,Mounds,Mr Good Bar,Nestle Butterfinger,Nestle Crunch,Peanut M&amp;Ms,ReeseÕs Miniatures,ReeseÕs Peanut Butter cup,ReeseÕs pieces,ReeseÕs stuffed with pieces,Rolo,Sixlets,Nestle Smarties,Snickers,Snickers Crisper,Tootsie Pop,Tootsie Roll Juniors,Tootsie Roll Midgies,Tootsie Roll Snack Bars,Twix,Whoppers
-## 4                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          100 Grand,HersheyÕs Krackel,Kit Kat,Nestle Crunch,Snickers Crisper,Twix,Whoppers
-## 5                                       Air Heads,Caramel Apple Pops,Chewey Lemonhead Fruit Mix,Chiclets,Dots,Dum Dums,Fruit Chews,Fun Dip,Gobstopper,Haribo Gold Bears,Haribo Sour Bears,Haribo Twin Snakes,Jawbusters,Laffy Taffy,Lemonhead,Lifesavers big ring gummies,Mike &amp; Ike,Nerds,Nik L Nip,Now &amp; Later,Pop Rocks,Red vines,Ring pop,Runts,Skittles original,Skittles wildberry,Smarties candy,Sour Patch Kids,Sour Patch Tricksters,Starburst,Strawberry bon bons,Super Bubble,Swedish Fish,Tootsie Pop,Trolli Sour Bites,Twizzlers,Warheads,WelchÕs Fruit Snacks
-## 6                                                                                                                                                                                                                                                                                                                                                                                      Dum Dums,Fun Dip,Gobstopper,Jawbusters,Lemonhead,Nerds,Pop Rocks,Ring pop,Root Beer Barrels,Runts,Smarties candy,Strawberry bon bons,Tootsie Pop,Warheads,WertherÕs Original Caramel</code></pre>
+candy &lt;- aggregate(competitorname ~ descriptor, data = dat_long, paste, collapse = &quot;,&quot;)</code></pre>
+<table class="table" style="font-size: 8px; width: auto !important; margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:left;">
+descriptor
+</th>
+<th style="text-align:left;">
+competitorname
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+bar
+</td>
+<td style="text-align:left;">
+100 Grand,3 Musketeers,Almond Joy,Baby Ruth,Charleston Chew,HersheyÕs Krackel,HersheyÕs Milk Chocolate,HersheyÕs Special Dark,Kit Kat,Milky Way,Milky Way Midnight,Milky Way Simply Caramel,Mounds,Mr Good Bar,Nestle Butterfinger,Nestle Crunch,Payday,Snickers,Snickers Crisper,Tootsie Roll Snack Bars,Twix
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+caramel
+</td>
+<td style="text-align:left;">
+100 Grand,Baby Ruth,Caramel Apple Pops,Milk Duds,Milky Way,Milky Way Midnight,Milky Way Simply Caramel,Rolo,Snickers,Snickers Crisper,Sugar Babies,Sugar Daddy,Twix,WertherÕs Original Caramel
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+chocolate
+</td>
+<td style="text-align:left;">
+100 Grand,3 Musketeers,Almond Joy,Baby Ruth,Charleston Chew,HersheyÕs Kisses,HersheyÕs Krackel,HersheyÕs Milk Chocolate,HersheyÕs Special Dark,Junior Mints,Kit Kat,Peanut butter M&amp;MÕs,M&amp;MÕs,Milk Duds,Milky Way,Milky Way Midnight,Milky Way Simply Caramel,Mounds,Mr Good Bar,Nestle Butterfinger,Nestle Crunch,Peanut M&amp;Ms,ReeseÕs Miniatures,ReeseÕs Peanut Butter cup,ReeseÕs pieces,ReeseÕs stuffed with pieces,Rolo,Sixlets,Nestle Smarties,Snickers,Snickers Crisper,Tootsie Pop,Tootsie Roll Juniors,Tootsie Roll Midgies,Tootsie Roll Snack Bars,Twix,Whoppers
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+crispedricewafer
+</td>
+<td style="text-align:left;">
+100 Grand,HersheyÕs Krackel,Kit Kat,Nestle Crunch,Snickers Crisper,Twix,Whoppers
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+fruity
+</td>
+<td style="text-align:left;">
+Air Heads,Caramel Apple Pops,Chewey Lemonhead Fruit Mix,Chiclets,Dots,Dum Dums,Fruit Chews,Fun Dip,Gobstopper,Haribo Gold Bears,Haribo Sour Bears,Haribo Twin Snakes,Jawbusters,Laffy Taffy,Lemonhead,Lifesavers big ring gummies,Mike &amp; Ike,Nerds,Nik L Nip,Now &amp; Later,Pop Rocks,Red vines,Ring pop,Runts,Skittles original,Skittles wildberry,Smarties candy,Sour Patch Kids,Sour Patch Tricksters,Starburst,Strawberry bon bons,Super Bubble,Swedish Fish,Tootsie Pop,Trolli Sour Bites,Twizzlers,Warheads,WelchÕs Fruit Snacks
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+hard
+</td>
+<td style="text-align:left;">
+Dum Dums,Fun Dip,Gobstopper,Jawbusters,Lemonhead,Nerds,Pop Rocks,Ring pop,Root Beer Barrels,Runts,Smarties candy,Strawberry bon bons,Tootsie Pop,Warheads,WertherÕs Original Caramel
+</td>
+</tr>
+</tbody>
+</table>
 <p>OKAY. We now have a dataframe that shows, for every candy descriptor, the full list of candies that have that characteristic. E.g., for “chocolate,” it shows: “100 Grand, 3 Musketeers, Almond Joy, Baby Ruth, Charleston Chew (wut?), Hershey’s Krackel, Hershey’s Milk Chocolate,” and so on.</p>
 <p>Now we can finally get to more fun stuff. I mean, I guess that was fun. But I’m itching to share my “biblionetwork” package!</p>
 <p>It’s hosted on my <a href="https://github.com/aczane/biblionetwork">github</a>:</p>
@@ -172,26 +214,40 @@ library(ggraph)</code></pre>
 <pre><code>## The following object is masked from &#39;package:stats&#39;:
 ## 
 ##     filter</code></pre>
-<p>We’ll want one of the original data columns as a node attribute: <a href="http://walthickey.com/2017/10/18/whats-the-best-halloween-candy/">winpercent</a>.</p>
-<pre class="r"><code>cg &lt;- tbl_graph(edges = edges, nodes = nodes, directed = FALSE)
+<p>We’ll want one of the original data columns as a node attribute: <a href="http://walthickey.com/2017/10/18/whats-the-best-halloween-candy/">winpercent</a>. We also want to make a new attribute, which I’ll just call “complexity:” a scale indicating how many of the descriptors each candy has. That is, if it’s “chocolate” and “peanutyalmondy” and “nougat” (like “Baby Ruth” or “Snickers”, it will have complexity &gt;= 3 (in this case, both are also “caramel”, so it’d be “4.”))</p>
+<pre class="r"><code># sum the first six columns of the original dataset: chocolate, fruity, caramel, peanutyalmondy, nougat, crispedricewafer. What is the range?
+
+dat %&lt;&gt;%
+  mutate(complexity = chocolate + fruity + caramel + peanutyalmondy + nougat + crispedricewafer)
+
+range(dat$complexity)</code></pre>
+<pre><code>## [1] 0 4</code></pre>
+<pre class="r"><code># join the attributes to the nodes df
+nodes &lt;-
+  nodes %&gt;%
+  left_join(dat[,c(1,13,14)], by = &quot;competitorname&quot;)
+
+# now create the graph object
+cg &lt;- tbl_graph(edges = edges, nodes = nodes, directed = FALSE)
 
 summary(cg)</code></pre>
-<pre><code>## IGRAPH c1fac49 U-W- 83 2024 -- 
-## + attr: competitorname (v/c), weight (e/n)</code></pre>
+<pre><code>## IGRAPH f5d4483 U-W- 83 2024 -- 
+## + attr: competitorname (v/c), winpercent (v/n), complexity (v/n),
+## | weight (e/n)</code></pre>
 <pre class="r"><code>cg</code></pre>
 <pre><code>## # A tbl_graph: 83 nodes and 2024 edges
 ## #
 ## # An undirected simple graph with 1 component
 ## #
-## # Node Data: 83 x 1 (active)
-##   competitorname    
-##   &lt;chr&gt;             
-## 1 100 Grand         
-## 2 3 Musketeers      
-## 3 Air Heads         
-## 4 Almond Joy        
-## 5 Baby Ruth         
-## 6 Boston Baked Beans
+## # Node Data: 83 x 3 (active)
+##   competitorname     winpercent complexity
+##   &lt;chr&gt;                   &lt;dbl&gt;      &lt;int&gt;
+## 1 100 Grand                67.0          3
+## 2 3 Musketeers             67.6          2
+## 3 Air Heads                52.3          1
+## 4 Almond Joy               50.3          2
+## 5 Baby Ruth                56.9          4
+## 6 Boston Baked Beans       23.4          1
 ## # ... with 77 more rows
 ## #
 ## # Edge Data: 2,024 x 3
@@ -201,40 +257,41 @@ summary(cg)</code></pre>
 ## 2     1     4     2.
 ## 3     1     5     3.
 ## # ... with 2,021 more rows</code></pre>
-<pre class="r"><code># add node attribute
+<p>So now we have a graph object that has nodes, node attributes (winpercent and complexity), and edges, with edge weights.</p>
+<p>So let’s plot this!</p>
+<pre class="r"><code># and let&#39;s plot
 
-cg &lt;- 
-  cg %&gt;% 
-  activate(nodes) %&gt;%
-  mutate(winpercent = dat$winpercent)
+# color scheme 
+cols &lt;- c(&quot;dodgerblue1&quot;, &quot;tomato1&quot;, &quot;goldenrod1&quot;, &quot;springgreen1&quot;, &quot;purple&quot;)
 
-cg</code></pre>
-<pre><code>## # A tbl_graph: 83 nodes and 2024 edges
-## #
-## # An undirected simple graph with 1 component
-## #
-## # Node Data: 83 x 2 (active)
-##   competitorname     winpercent
-##   &lt;chr&gt;                   &lt;dbl&gt;
-## 1 100 Grand                67.0
-## 2 3 Musketeers             67.6
-## 3 Air Heads                52.3
-## 4 Almond Joy               50.3
-## 5 Baby Ruth                56.9
-## 6 Boston Baked Beans       23.4
-## # ... with 77 more rows
-## #
-## # Edge Data: 2,024 x 3
-##    from    to weight
-##   &lt;int&gt; &lt;int&gt;  &lt;dbl&gt;
-## 1     1     2     2.
-## 2     1     4     2.
-## 3     1     5     3.
-## # ... with 2,021 more rows</code></pre>
+# now the ggraph
+ggraph(cg, layout = &#39;fr&#39;) + 
+  geom_edge_fan(aes(alpha = weight), edge_colour = &quot;gray54&quot;,
+                show.legend = FALSE) +
+  geom_node_point(aes(size = winpercent, alpha = winpercent, 
+                      color = as.factor(complexity))) +
+  labs(title = &quot;Candy Network by Complexity and Win %&quot;) +
+  geom_node_text(aes(label = competitorname), size = 2.5, 
+                 colour = &#39;black&#39;, repel = TRUE, 
+                 check_overlap = TRUE) +
+  scale_alpha_continuous(range = c(0.1, 0.9), name = &quot;Win %&quot;) +
+  scale_size_continuous(range = c(1,10), name = &quot;Win %&quot;) +
+  scale_color_manual(name = &quot;Candy Complexity&quot;, values = cols) +
+  theme_void()</code></pre>
+<p><img src="/post/2018-03-27-the-biblionetwork-package_files/figure-html/unnamed-chunk-15-1.png" width="672" /> And this is pretty much what you would expect! Similar candies are connected by edges.</p>
+<p>The chocolate candy bars are all together, interconnected. Midway through you get chocolate pluribus candies like M&amp;Ms, and then you get into fruitier candies on the other side, which all tend to be pluribus (and erm, where my heart lies). You also see that the fruity candies tend not to be so complex (at least on this scale), but people still like them, whereas the more popular chocolate candies tend to rate higher in complexity.</p>
+<p>And finally, your reminder that you can’t always trust a simple graph. I love Haribo Happy Cola. But what is it next to?</p>
+<p><img src="/img/happycola.png" /> CANDY CORN?? THE HORROR.</p>
+<p>Anyway, there it is! Let me know if you try out the package and find it helpful, or lacking, or anything at all! For more handy network resources, check out:</p>
+<ol style="list-style-type: decimal">
+<li><a href="http://kateto.net/network-visualization">Katya Ognyanova’s website</a></li>
+<li>Francois Briatte’s <a href="https://github.com/briatte/awesome-network-analysis">curated list of network resources</a></li>
+<li>Colin Fay’s [Gentle Introduction to Network] Visualization(<a href="https://github.com/ColinFay/conf/blob/master/2017-11-budapest/fay_colin_visualise_network.pdf" class="uri">https://github.com/ColinFay/conf/blob/master/2017-11-budapest/fay_colin_visualise_network.pdf</a>)</li>
+</ol>
 <div class="footnotes">
 <hr />
 <ol>
 <li id="fn1"><p><a href="http://www.alexejgossmann.com/benchmarking_r/">Alexej’s post</a> is extremely helpful for benchmarking, btw.<a href="#fnref1">↩</a></p></li>
-<li id="fn2"><p>For really large networks (10<sup>4</sup> nodes and 10<sup>7</sup>/<sup>+</sup> edges), I find <a href="https://briatte.github.io/ggnetwork/"><code>ggnetwork</code></a> to work a little better…I’ve gotten the bomb of doom a little too often with tidygraph and ggraph on very large datasets. I’m not sure why this is. I will confess that I haven’t put too much time into it as I have lots of working code written for ggnetwork.<a href="#fnref2">↩</a></p></li>
+<li id="fn2"><p>For really large networks (10<sup>4</sup> nodes and &gt;=10<sup>7</sup> edges), I find <a href="https://briatte.github.io/ggnetwork/"><code>ggnetwork</code></a> to work a little better, though it requires more tweaking…I’ve gotten the bomb of doom a little too often with tidygraph and ggraph on very large datasets. I’m not sure why this is. I will confess that I haven’t put too much time into it as I have lots of working code written for ggnetwork.<a href="#fnref2">↩</a></p></li>
 </ol>
 </div>
