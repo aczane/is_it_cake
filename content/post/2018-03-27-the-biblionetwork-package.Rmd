@@ -240,7 +240,7 @@ Anyway, there it is! Let me know if you try out the package and find it helpful,
 
 1. [Katya Ognyanova's website](http://kateto.net/network-visualization)
 2. Francois Briatte's [curated list of network resources](https://github.com/briatte/awesome-network-analysis)
-3. Colin Fay's [Gentle Introduction to Network] Visualization(https://github.com/ColinFay/conf/blob/master/2017-11-budapest/fay_colin_visualise_network.pdf)
+3. Colin Fay's [Gentle Introduction to Network Visualization](https://github.com/ColinFay/conf/blob/master/2017-11-budapest/fay_colin_visualise_network.pdf)
 
 [^1]:[Alexej's post](http://www.alexejgossmann.com/benchmarking_r/) is extremely helpful for benchmarking, btw.
 [^2]: For really large networks (10^4^ nodes and >=10^7^ edges), I find [`ggnetwork`](https://briatte.github.io/ggnetwork/) to work a little better, though it requires more tweaking...I've gotten the bomb of doom a little too often with tidygraph and ggraph on very large datasets. I'm not sure why this is. I will confess that I haven't put too much time into it as I have lots of working code written for ggnetwork.
