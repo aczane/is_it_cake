@@ -15,7 +15,7 @@ tags:
   - tutorial
   - vignette
   - network
-draft: TRUE
+
 ---
 
 ```{r setup, include=FALSE}
