@@ -177,7 +177,7 @@ test_set <-
   mtcars %>%
   select(mpg, cyl, disp, hp, drat, wt)
 
-knitr::kable(head(), format = 'html') %>%
+knitr::kable(head(test_set), format = 'html') %>%
   kable_styling(full_width = F, font_size = 8)
 ```
 
