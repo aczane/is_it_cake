@@ -24,7 +24,7 @@ tags:
 {{% tweet "960859452244099072" %}}
 <p>Happily, I was able to knock the <a href="https://aczane.netlify.com/2018/02/08/the-first-and-namesake-post-is-it-cake/">second one</a> out back in February, but the first one has taken more work.</p>
 <p>The <code>biblionetwork</code> package has just two functions, currently. They are (so creatively named, you guys): <code>make_edgelist</code> : creates edgelists in dataframe format <code>make_nodelist</code> : creates nodelists in dataframe format</p>
-<p>I’m not sure if a package already exists out there that performs these functions, but I couldn’t find one when I first started working with co-occurrence lists and networks. I did find a great example from <a href="https://www.r-bloggers.com/turning-keywords-into-a-co-occurrence-network/">Francois Briatte</a>, which I was able to modify for my work. I’ve since changed the script even further, and benchmarked it to gauge speed: <a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a></p>
+<p>I’m not sure if a package already exists out there that performs these functions, but I couldn’t find one when I first started working with co-occurrence lists and networks. I did find a great example from <a href="https://www.r-bloggers.com/turning-keywords-into-a-co-occurrence-network/">Francois Briatte</a>, which I was able to modify for my work. I’ve since changed the script even further, and benchmarked my various versions to gauge speed: <a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a></p>
 {{% tweet "973903870366814209" %}}
 <p>Mind you, it’s still not very fast (especially for very large networks, ~10<sup>4</sup> nodes and &gt;= 10<sup>6</sup> edges). But it works!</p>
 <p>I’m going to walk through it with the “Candy” dataset from <a href="https://data.fivethirtyeight.com">FiveThirtyEight</a>. This is a dataset of candy types, with a bunch of variables describing the candies, like “chocolate,” “fruity,” and so on; the full description of the data can be found <a href="https://github.com/fivethirtyeight/data/tree/master/candy-power-ranking">here</a>. We’re going to rework it a little bit and create a network graph of the candies; candy with similar traits should be closer to each other and linked.</p>
@@ -231,7 +231,7 @@ nodes &lt;-
 cg &lt;- tbl_graph(edges = edges, nodes = nodes, directed = FALSE)
 
 summary(cg)</code></pre>
-<pre><code>## IGRAPH fbecc33 U-W- 83 2024 -- 
+<pre><code>## IGRAPH 74ba42d U-W- 83 2024 -- 
 ## + attr: competitorname (v/c), winpercent (v/n), complexity (v/n),
 ## | weight (e/n)</code></pre>
 <pre class="r"><code>cg</code></pre>

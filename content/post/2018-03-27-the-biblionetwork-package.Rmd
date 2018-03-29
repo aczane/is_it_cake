@@ -35,7 +35,7 @@ The `biblionetwork` package has just two functions, currently. They are (so crea
 `make_edgelist` : creates edgelists in dataframe format
 `make_nodelist` : creates nodelists in dataframe format
 
-I'm not sure if a package already exists out there that performs these functions, but I couldn't find one when I first started working with co-occurrence lists and networks. I did find a great example from [Francois Briatte](https://www.r-bloggers.com/turning-keywords-into-a-co-occurrence-network/), which I was able to modify for my work. I've since changed the script even further, and benchmarked it to gauge speed: [^1]
+I'm not sure if a package already exists out there that performs these functions, but I couldn't find one when I first started working with co-occurrence lists and networks. I did find a great example from [Francois Briatte](https://www.r-bloggers.com/turning-keywords-into-a-co-occurrence-network/), which I was able to modify for my work. I've since changed the script even further, and benchmarked my various versions to gauge speed: [^1]
 
 ```{r echo = FALSE, eval = TRUE}
 blogdown::shortcode('tweet', '973903870366814209')
