@@ -169,6 +169,7 @@ edges <- make_edgelist(candy, competitorname, sep = ",")
 
 head(edges)
 ```
+So if two candies share two attributes, they should have an edge weight of two; if they share three attributes, their edge weight should be three.
 
 And now, the network graph! We'll try out [`tidygraph`](https://www.data-imaginist.com/2017/introducing-tidygraph/) and [`ggraph`](https://github.com/thomasp85/ggraph).[^2]
 

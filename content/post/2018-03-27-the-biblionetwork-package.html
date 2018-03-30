@@ -205,6 +205,7 @@ head(edges)</code></pre>
 ## 4 100 Grand Caramel Apple Pops     1.
 ## 5 100 Grand Charleston Chew        2.
 ## 6 100 Grand Hershey&#39;s Kisses       1.</code></pre>
+<p>So if two candies share two attributes, they should have an edge weight of two; if they share three attributes, their edge weight should be three.</p>
 <p>And now, the network graph! We’ll try out <a href="https://www.data-imaginist.com/2017/introducing-tidygraph/"><code>tidygraph</code></a> and <a href="https://github.com/thomasp85/ggraph"><code>ggraph</code></a>.<a href="#fn2" class="footnoteRef" id="fnref2"><sup>2</sup></a></p>
 <pre class="r"><code>install.packages(&quot;tidygraph&quot;)
 install.packages(&quot;thomasp85/ggraph&quot;)
@@ -233,7 +234,7 @@ nodes &lt;-
 cg &lt;- tbl_graph(edges = edges, nodes = nodes, directed = FALSE)
 
 summary(cg)</code></pre>
-<pre><code>## IGRAPH 2bf7e87 U-W- 83 2024 -- 
+<pre><code>## IGRAPH d91ed68 U-W- 83 2024 -- 
 ## + attr: competitorname (v/c), winpercent (v/n), complexity (v/n),
 ## | weight (e/n)</code></pre>
 <pre class="r"><code>cg</code></pre>
