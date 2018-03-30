@@ -43,14 +43,19 @@ blogdown::shortcode('tweet', '973903870366814209')
 
 Mind you, it's still not very fast (especially for very large networks, ~10^4^ nodes and >= 10^6^ edges). But it works!
 
-I'm going to walk through it with the "Candy" dataset from [FiveThirtyEight](https://data.fivethirtyeight.com). This is a dataset of candy types, with a bunch of variables describing the candies, like "chocolate," "fruity," and so on; the full description of the data can be found [here](https://github.com/fivethirtyeight/data/tree/master/candy-power-ranking). We're going to rework it a little bit and create a network graph of the candies; candy with similar traits should be closer to each other and linked. 
+[**Update, 2018/03/30**
+I'm updating this post to use the [`fivethirtyeight`](http://fivethirtyeight-r.netlify.com/index.html) package from [Albert](http://rudeboybert.rbind.io), [Chester](http://chester.rbind.io), and [Jennifer](https://twitter.com/jchunn206). Install the package and call the dataset to use it as shown.]
+
+I'm going to walk through it with the "Candy" dataset from [FiveThirtyEight](https://data.fivethirtyeight.com). This is a dataset of candy types, with a bunch of variables describing the candies, like "chocolate," "fruity," and so on; the full description of the data can be found [here](http://fivethirtyeight-r.netlify.com/articles/fivethirtyeight.html) in the package reference, and [here on the fivethirtyeight data site](https://github.com/fivethirtyeight/data/tree/master/candy-power-ranking). We're going to rework it a little bit and create a network graph of the candies; candy with similar traits should be closer to each other and linked. 
 
 ```{r eval = FALSE, echo = TRUE}
-library(tidyverse)
 
-# load the data and select the desired columns
+# load the data from the fivethirtyeight package 
 
-dat <- read_csv("candy-data.csv") 
+install.packages("fivethirtyeight")
+library(fivethirtyeight)
+
+dat <- fivethirtyeight::candy_rankings
 
 # check it out
 
@@ -60,15 +65,16 @@ head(dat)
 ```{r eval = TRUE, message = F, echo = FALSE}
 library(tidyverse)
 
-dat <- read_csv("https://raw.githubusercontent.com/fivethirtyeight/data/master/candy-power-ranking/candy-data.csv") 
+library(fivethirtyeight)
+
+dat <- fivethirtyeight::candy_rankings 
 
 head(dat)
 ```
-
+Let's also remove the "one dime" and "one quarter" entries, because...that's not food. (They discuss this in the article.)
 ```{r eval = TRUE, message = FALSE, echo = TRUE}
 
-# Let's also remove the "one dime" and "one quarter" entries, because...that's not food. (They discuss this in the article.)
-
+library(tidyverse)
 library(magrittr)
 
 dat %<>%
@@ -77,8 +83,7 @@ dat %<>%
 # how many distinct candies are there?
 n_distinct(dat$competitorname)
 ```
-
-The descriptive columns are categorical variables - "1"" indicating "yes," (e.g., a "1" in "chocolate" means it is chocolate or contains chocolate), and "0" for "no." We're going to change this coding a little bit and create text instead. There is probably a more elegant way of doing this, but messing with extracting and looping over colnames is something I don't want to touch with a long stick, so...
+The descriptive columns in the fivethirtyeight package version of this dataset are logical variables - "TRUE" indicating "yes," this is "chocolate," and "FALSE" if it is not. We're going to change this coding a little bit and create text instead. There is probably a more elegant way of doing this, but messing with extracting and looping over colnames is something I don't want to touch with a long stick, so...
 
 ```{r eval = TRUE, echo = TRUE}
 
@@ -86,17 +91,17 @@ The descriptive columns are categorical variables - "1"" indicating "yes," (e.g.
 
 dat_labels <-
   dat %>%
-  mutate(choc_lab = ifelse(chocolate == "1", "chocolate", NA),
-         fruit_lab = ifelse(fruity == "1", "fruity", NA),
-         car_lab = ifelse(caramel == "1", "caramel", NA),
-         pea_lab = ifelse(peanutyalmondy == "1",
+  mutate(choc_lab = ifelse(chocolate, "chocolate", NA),
+         fruit_lab = ifelse(fruity, "fruity", NA),
+         car_lab = ifelse(caramel, "caramel", NA),
+         pea_lab = ifelse(peanutyalmondy,
                                  "peanutyalmondy", NA),
-         nou_lab = ifelse(nougat == "1", "nougat", NA),
-         crisp_lab = ifelse(crispedricewafer == "1",
+         nou_lab = ifelse(nougat, "nougat", NA),
+         crisp_lab = ifelse(crispedricewafer ,
                                    "crispedricewafer", NA),
-         hard_lab = ifelse(hard == "1", "hard", NA),
-         bar_lab = ifelse(bar == "1", "bar", NA),
-         plu_lab = ifelse(pluribus == "1", "pluribus", NA)) 
+         hard_lab = ifelse(hard , "hard", NA),
+         bar_lab = ifelse(bar, "bar", NA),
+         plu_lab = ifelse(pluribus, "pluribus", NA)) 
 
 # and check
 

@@ -27,30 +27,32 @@ tags:
 <p>I’m not sure if a package already exists out there that performs these functions, but I couldn’t find one when I first started working with co-occurrence lists and networks. I did find a great example from <a href="https://www.r-bloggers.com/turning-keywords-into-a-co-occurrence-network/">Francois Briatte</a>, which I was able to modify for my work. I’ve since changed the script even further, and benchmarked my various versions to gauge speed: <a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a></p>
 {{% tweet "973903870366814209" %}}
 <p>Mind you, it’s still not very fast (especially for very large networks, ~10<sup>4</sup> nodes and &gt;= 10<sup>6</sup> edges). But it works!</p>
-<p>I’m going to walk through it with the “Candy” dataset from <a href="https://data.fivethirtyeight.com">FiveThirtyEight</a>. This is a dataset of candy types, with a bunch of variables describing the candies, like “chocolate,” “fruity,” and so on; the full description of the data can be found <a href="https://github.com/fivethirtyeight/data/tree/master/candy-power-ranking">here</a>. We’re going to rework it a little bit and create a network graph of the candies; candy with similar traits should be closer to each other and linked.</p>
-<pre class="r"><code>library(tidyverse)
+<p>[<strong>Update, 2018/03/30</strong> I’m updating this post to use the <a href="http://fivethirtyeight-r.netlify.com/index.html"><code>fivethirtyeight</code></a> package from <a href="http://rudeboybert.rbind.io">Albert</a>, <a href="http://chester.rbind.io">Chester</a>, and <a href="https://twitter.com/jchunn206">Jennifer</a>. Install the package and call the dataset to use it as shown.]</p>
+<p>I’m going to walk through it with the “Candy” dataset from <a href="https://data.fivethirtyeight.com">FiveThirtyEight</a>. This is a dataset of candy types, with a bunch of variables describing the candies, like “chocolate,” “fruity,” and so on; the full description of the data can be found <a href="http://fivethirtyeight-r.netlify.com/articles/fivethirtyeight.html">here</a> in the package reference, and <a href="https://github.com/fivethirtyeight/data/tree/master/candy-power-ranking">here on the fivethirtyeight data site</a>. We’re going to rework it a little bit and create a network graph of the candies; candy with similar traits should be closer to each other and linked.</p>
+<pre class="r"><code># load the data from the fivethirtyeight package 
 
-# load the data and select the desired columns
+install.packages(&quot;fivethirtyeight&quot;)
+library(fivethirtyeight)
 
-dat &lt;- read_csv(&quot;candy-data.csv&quot;) 
+dat &lt;- fivethirtyeight::candy_rankings
 
 # check it out
 
 head(dat)</code></pre>
 <pre><code>## # A tibble: 6 x 13
 ##   competitorname chocolate fruity caramel peanutyalmondy nougat
-##   &lt;chr&gt;              &lt;int&gt;  &lt;int&gt;   &lt;int&gt;          &lt;int&gt;  &lt;int&gt;
-## 1 100 Grand              1      0       1              0      0
-## 2 3 Musketeers           1      0       0              0      1
-## 3 One dime               0      0       0              0      0
-## 4 One quarter            0      0       0              0      0
-## 5 Air Heads              0      1       0              0      0
-## 6 Almond Joy             1      0       0              1      0
-## # ... with 7 more variables: crispedricewafer &lt;int&gt;, hard &lt;int&gt;,
-## #   bar &lt;int&gt;, pluribus &lt;int&gt;, sugarpercent &lt;dbl&gt;, pricepercent &lt;dbl&gt;,
+##   &lt;chr&gt;          &lt;lgl&gt;     &lt;lgl&gt;  &lt;lgl&gt;   &lt;lgl&gt;          &lt;lgl&gt; 
+## 1 100 Grand      TRUE      FALSE  TRUE    FALSE          FALSE 
+## 2 3 Musketeers   TRUE      FALSE  FALSE   FALSE          TRUE  
+## 3 One dime       FALSE     FALSE  FALSE   FALSE          FALSE 
+## 4 One quarter    FALSE     FALSE  FALSE   FALSE          FALSE 
+## 5 Air Heads      FALSE     TRUE   FALSE   FALSE          FALSE 
+## 6 Almond Joy     TRUE      FALSE  FALSE   TRUE           FALSE 
+## # ... with 7 more variables: crispedricewafer &lt;lgl&gt;, hard &lt;lgl&gt;,
+## #   bar &lt;lgl&gt;, pluribus &lt;lgl&gt;, sugarpercent &lt;dbl&gt;, pricepercent &lt;dbl&gt;,
 ## #   winpercent &lt;dbl&gt;</code></pre>
-<pre class="r"><code># Let&#39;s also remove the &quot;one dime&quot; and &quot;one quarter&quot; entries, because...that&#39;s not food. (They discuss this in the article.)
-
+<p>Let’s also remove the “one dime” and “one quarter” entries, because…that’s not food. (They discuss this in the article.)</p>
+<pre class="r"><code>library(tidyverse)
 library(magrittr)
 
 dat %&lt;&gt;%
@@ -59,37 +61,37 @@ dat %&lt;&gt;%
 # how many distinct candies are there?
 n_distinct(dat$competitorname)</code></pre>
 <pre><code>## [1] 83</code></pre>
-<p>The descriptive columns are categorical variables - “1”&quot; indicating “yes,” (e.g., a “1” in “chocolate” means it is chocolate or contains chocolate), and “0” for “no.” We’re going to change this coding a little bit and create text instead. There is probably a more elegant way of doing this, but messing with extracting and looping over colnames is something I don’t want to touch with a long stick, so…</p>
+<p>The descriptive columns in the fivethirtyeight package version of this dataset are logical variables - “TRUE” indicating “yes,” this is “chocolate,” and “FALSE” if it is not. We’re going to change this coding a little bit and create text instead. There is probably a more elegant way of doing this, but messing with extracting and looping over colnames is something I don’t want to touch with a long stick, so…</p>
 <pre class="r"><code># create new columns with text instead of binary coding
 
 dat_labels &lt;-
   dat %&gt;%
-  mutate(choc_lab = ifelse(chocolate == &quot;1&quot;, &quot;chocolate&quot;, NA),
-         fruit_lab = ifelse(fruity == &quot;1&quot;, &quot;fruity&quot;, NA),
-         car_lab = ifelse(caramel == &quot;1&quot;, &quot;caramel&quot;, NA),
-         pea_lab = ifelse(peanutyalmondy == &quot;1&quot;,
+  mutate(choc_lab = ifelse(chocolate, &quot;chocolate&quot;, NA),
+         fruit_lab = ifelse(fruity, &quot;fruity&quot;, NA),
+         car_lab = ifelse(caramel, &quot;caramel&quot;, NA),
+         pea_lab = ifelse(peanutyalmondy,
                                  &quot;peanutyalmondy&quot;, NA),
-         nou_lab = ifelse(nougat == &quot;1&quot;, &quot;nougat&quot;, NA),
-         crisp_lab = ifelse(crispedricewafer == &quot;1&quot;,
+         nou_lab = ifelse(nougat, &quot;nougat&quot;, NA),
+         crisp_lab = ifelse(crispedricewafer ,
                                    &quot;crispedricewafer&quot;, NA),
-         hard_lab = ifelse(hard == &quot;1&quot;, &quot;hard&quot;, NA),
-         bar_lab = ifelse(bar == &quot;1&quot;, &quot;bar&quot;, NA),
-         plu_lab = ifelse(pluribus == &quot;1&quot;, &quot;pluribus&quot;, NA)) 
+         hard_lab = ifelse(hard , &quot;hard&quot;, NA),
+         bar_lab = ifelse(bar, &quot;bar&quot;, NA),
+         plu_lab = ifelse(pluribus, &quot;pluribus&quot;, NA)) 
 
 # and check
 
 head(dat_labels)</code></pre>
 <pre><code>## # A tibble: 6 x 22
 ##   competitorname     chocolate fruity caramel peanutyalmondy nougat
-##   &lt;chr&gt;                  &lt;int&gt;  &lt;int&gt;   &lt;int&gt;          &lt;int&gt;  &lt;int&gt;
-## 1 100 Grand                  1      0       1              0      0
-## 2 3 Musketeers               1      0       0              0      1
-## 3 Air Heads                  0      1       0              0      0
-## 4 Almond Joy                 1      0       0              1      0
-## 5 Baby Ruth                  1      0       1              1      1
-## 6 Boston Baked Beans         0      0       0              1      0
-## # ... with 16 more variables: crispedricewafer &lt;int&gt;, hard &lt;int&gt;,
-## #   bar &lt;int&gt;, pluribus &lt;int&gt;, sugarpercent &lt;dbl&gt;, pricepercent &lt;dbl&gt;,
+##   &lt;chr&gt;              &lt;lgl&gt;     &lt;lgl&gt;  &lt;lgl&gt;   &lt;lgl&gt;          &lt;lgl&gt; 
+## 1 100 Grand          TRUE      FALSE  TRUE    FALSE          FALSE 
+## 2 3 Musketeers       TRUE      FALSE  FALSE   FALSE          TRUE  
+## 3 Air Heads          FALSE     TRUE   FALSE   FALSE          FALSE 
+## 4 Almond Joy         TRUE      FALSE  FALSE   TRUE           FALSE 
+## 5 Baby Ruth          TRUE      FALSE  TRUE    TRUE           TRUE  
+## 6 Boston Baked Beans FALSE     FALSE  FALSE   TRUE           FALSE 
+## # ... with 16 more variables: crispedricewafer &lt;lgl&gt;, hard &lt;lgl&gt;,
+## #   bar &lt;lgl&gt;, pluribus &lt;lgl&gt;, sugarpercent &lt;dbl&gt;, pricepercent &lt;dbl&gt;,
 ## #   winpercent &lt;dbl&gt;, choc_lab &lt;chr&gt;, fruit_lab &lt;chr&gt;, car_lab &lt;chr&gt;,
 ## #   pea_lab &lt;chr&gt;, nou_lab &lt;chr&gt;, crisp_lab &lt;chr&gt;, hard_lab &lt;chr&gt;,
 ## #   bar_lab &lt;chr&gt;, plu_lab &lt;chr&gt;</code></pre>
@@ -123,7 +125,7 @@ competitorname
 bar
 </td>
 <td style="text-align:left;">
-100 Grand,3 Musketeers,Almond Joy,Baby Ruth,Charleston Chew,HersheyÕs Krackel,HersheyÕs Milk Chocolate,HersheyÕs Special Dark,Kit Kat,Milky Way,Milky Way Midnight,Milky Way Simply Caramel,Mounds,Mr Good Bar,Nestle Butterfinger,Nestle Crunch,Payday,Snickers,Snickers Crisper,Tootsie Roll Snack Bars,Twix
+100 Grand,3 Musketeers,Almond Joy,Baby Ruth,Charleston Chew,Hershey’s Krackel,Hershey’s Milk Chocolate,Hershey’s Special Dark,Kit Kat,Milky Way,Milky Way Midnight,Milky Way Simply Caramel,Mounds,Mr Good Bar,Nestle Butterfinger,Nestle Crunch,Payday,Snickers,Snickers Crisper,Tootsie Roll Snack Bars,Twix
 </td>
 </tr>
 <tr>
@@ -131,7 +133,7 @@ bar
 caramel
 </td>
 <td style="text-align:left;">
-100 Grand,Baby Ruth,Caramel Apple Pops,Milk Duds,Milky Way,Milky Way Midnight,Milky Way Simply Caramel,Rolo,Snickers,Snickers Crisper,Sugar Babies,Sugar Daddy,Twix,WertherÕs Original Caramel
+100 Grand,Baby Ruth,Caramel Apple Pops,Milk Duds,Milky Way,Milky Way Midnight,Milky Way Simply Caramel,Rolo,Snickers,Snickers Crisper,Sugar Babies,Sugar Daddy,Twix,Werther’s Original Caramel
 </td>
 </tr>
 <tr>
@@ -139,7 +141,7 @@ caramel
 chocolate
 </td>
 <td style="text-align:left;">
-100 Grand,3 Musketeers,Almond Joy,Baby Ruth,Charleston Chew,HersheyÕs Kisses,HersheyÕs Krackel,HersheyÕs Milk Chocolate,HersheyÕs Special Dark,Junior Mints,Kit Kat,Peanut butter M&amp;MÕs,M&amp;MÕs,Milk Duds,Milky Way,Milky Way Midnight,Milky Way Simply Caramel,Mounds,Mr Good Bar,Nestle Butterfinger,Nestle Crunch,Peanut M&amp;Ms,ReeseÕs Miniatures,ReeseÕs Peanut Butter cup,ReeseÕs pieces,ReeseÕs stuffed with pieces,Rolo,Sixlets,Nestle Smarties,Snickers,Snickers Crisper,Tootsie Pop,Tootsie Roll Juniors,Tootsie Roll Midgies,Tootsie Roll Snack Bars,Twix,Whoppers
+100 Grand,3 Musketeers,Almond Joy,Baby Ruth,Charleston Chew,Hershey’s Kisses,Hershey’s Krackel,Hershey’s Milk Chocolate,Hershey’s Special Dark,Junior Mints,Kit Kat,Peanut butter M&amp;M’s,M&amp;M’s,Milk Duds,Milky Way,Milky Way Midnight,Milky Way Simply Caramel,Mounds,Mr Good Bar,Nestle Butterfinger,Nestle Crunch,Peanut M&amp;Ms,Reese’s Miniatures,Reese’s Peanut Butter cup,Reese’s pieces,Reese’s stuffed with pieces,Rolo,Sixlets,Nestle Smarties,Snickers,Snickers Crisper,Tootsie Pop,Tootsie Roll Juniors,Tootsie Roll Midgies,Tootsie Roll Snack Bars,Twix,Whoppers
 </td>
 </tr>
 <tr>
@@ -147,7 +149,7 @@ chocolate
 crispedricewafer
 </td>
 <td style="text-align:left;">
-100 Grand,HersheyÕs Krackel,Kit Kat,Nestle Crunch,Snickers Crisper,Twix,Whoppers
+100 Grand,Hershey’s Krackel,Kit Kat,Nestle Crunch,Snickers Crisper,Twix,Whoppers
 </td>
 </tr>
 <tr>
@@ -155,7 +157,7 @@ crispedricewafer
 fruity
 </td>
 <td style="text-align:left;">
-Air Heads,Caramel Apple Pops,Chewey Lemonhead Fruit Mix,Chiclets,Dots,Dum Dums,Fruit Chews,Fun Dip,Gobstopper,Haribo Gold Bears,Haribo Sour Bears,Haribo Twin Snakes,Jawbusters,Laffy Taffy,Lemonhead,Lifesavers big ring gummies,Mike &amp; Ike,Nerds,Nik L Nip,Now &amp; Later,Pop Rocks,Red vines,Ring pop,Runts,Skittles original,Skittles wildberry,Smarties candy,Sour Patch Kids,Sour Patch Tricksters,Starburst,Strawberry bon bons,Super Bubble,Swedish Fish,Tootsie Pop,Trolli Sour Bites,Twizzlers,Warheads,WelchÕs Fruit Snacks
+Air Heads,Caramel Apple Pops,Chewey Lemonhead Fruit Mix,Chiclets,Dots,Dum Dums,Fruit Chews,Fun Dip,Gobstopper,Haribo Gold Bears,Haribo Sour Bears,Haribo Twin Snakes,Jawbusters,Laffy Taffy,Lemonhead,Lifesavers big ring gummies,Mike &amp; Ike,Nerds,Nik L Nip,Now &amp; Later,Pop Rocks,Red vines,Ring pop,Runts,Skittles original,Skittles wildberry,Smarties candy,Sour Patch Kids,Sour Patch Tricksters,Starburst,Strawberry bon bons,Super Bubble,Swedish Fish,Tootsie Pop,Trolli Sour Bites,Twizzlers,Warheads,Welch’s Fruit Snacks
 </td>
 </tr>
 <tr>
@@ -163,7 +165,7 @@ Air Heads,Caramel Apple Pops,Chewey Lemonhead Fruit Mix,Chiclets,Dots,Dum Dums,F
 hard
 </td>
 <td style="text-align:left;">
-Dum Dums,Fun Dip,Gobstopper,Jawbusters,Lemonhead,Nerds,Pop Rocks,Ring pop,Root Beer Barrels,Runts,Smarties candy,Strawberry bon bons,Tootsie Pop,Warheads,WertherÕs Original Caramel
+Dum Dums,Fun Dip,Gobstopper,Jawbusters,Lemonhead,Nerds,Pop Rocks,Ring pop,Root Beer Barrels,Runts,Smarties candy,Strawberry bon bons,Tootsie Pop,Warheads,Werther’s Original Caramel
 </td>
 </tr>
 </tbody>
@@ -202,7 +204,7 @@ head(edges)</code></pre>
 ## 3 100 Grand Baby Ruth              3.
 ## 4 100 Grand Caramel Apple Pops     1.
 ## 5 100 Grand Charleston Chew        2.
-## 6 100 Grand HersheyÕs Kisses       1.</code></pre>
+## 6 100 Grand Hershey&#39;s Kisses       1.</code></pre>
 <p>And now, the network graph! We’ll try out <a href="https://www.data-imaginist.com/2017/introducing-tidygraph/"><code>tidygraph</code></a> and <a href="https://github.com/thomasp85/ggraph"><code>ggraph</code></a>.<a href="#fn2" class="footnoteRef" id="fnref2"><sup>2</sup></a></p>
 <pre class="r"><code>install.packages(&quot;tidygraph&quot;)
 install.packages(&quot;thomasp85/ggraph&quot;)
@@ -231,7 +233,7 @@ nodes &lt;-
 cg &lt;- tbl_graph(edges = edges, nodes = nodes, directed = FALSE)
 
 summary(cg)</code></pre>
-<pre><code>## IGRAPH 74ba42d U-W- 83 2024 -- 
+<pre><code>## IGRAPH 2bf7e87 U-W- 83 2024 -- 
 ## + attr: competitorname (v/c), winpercent (v/n), complexity (v/n),
 ## | weight (e/n)</code></pre>
 <pre class="r"><code>cg</code></pre>
